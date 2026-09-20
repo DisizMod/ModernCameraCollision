@@ -32,6 +32,7 @@ namespace mcc::collision
 	{
 		bool stops = true;
 		bool whole = false;  // let through by its layer: faded whole
+		bool isSmall = false;  // the shape under the hit was small
 		int  cover = -1;     // percent of the disc, -1 when not measured
 	};
 

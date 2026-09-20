@@ -177,26 +177,6 @@ namespace mcc::collision
 			return radius;
 		}
 
-		// Whether a sample ray may go on past what it hit: the player's own
-		// body, a through layer, or a shape that is small at that point.
-		bool SeesThrough(const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref, const RE::NiPoint3& a_at)
-		{
-			const auto layer = a_root->GetCollisionLayer();
-			if (layer == RE::COL_LAYER::kCharController) {
-				return true;
-			}
-			const bool ground = layer == RE::COL_LAYER::kTerrain || layer == RE::COL_LAYER::kGround ||
-			                    (a_root->shape && a_root->shape->type == RE::hkpShapeType::kHeightField);
-			const auto rule = ground ? settings::Rule::Stop : RuleFor(layer);
-			if (rule == settings::Rule::Through) {
-				return true;
-			}
-			if (rule == settings::Rule::Stop) {
-				return false;
-			}
-			return fade::Fadeable(a_ref, a_at, g_settings);
-		}
-
 		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, RE::TESObjectREFR* a_ref, float a_scale,
 			bool a_forWhisker, DiscView& a_disc)
 		{
@@ -223,46 +203,45 @@ namespace mcc::collision
 			}
 			a_disc.samples = n;
 
-			int taken = 0;
+			// A sample is taken when the same reference stops its ray. Stopped
+			// by another reference instead, where matters: beyond the disc,
+			// the occluder was not there -- the wall behind a beam -- and the
+			// sample is clear; before it, something stood between the player
+			// and the occluder -- a table under which the camera has gone --
+			// and the sample says nothing, so it is left out of the count.
+			// The share is taken over taken plus clear; with nothing known,
+			// there is no evidence the occluder is small, and it is kept.
+			int taken = 0, clear = 0;
 			for (int i = 0; i < n; ++i) {
 				const RE::NiPoint3& sample = a_disc.point[i];
 				const RE::NiPoint3  dir = Normalized(sample - g_castFrom);
 				const float         reach = Length(sample - g_castFrom);
-				RE::NiPoint3        from = g_castFrom + dir * (std::min)(kBodyClearance, reach * 0.5f);
+				const RE::NiPoint3  from = g_castFrom + dir * (std::min)(kBodyClearance, reach * 0.5f);
 				const RE::NiPoint3  to = sample + dir * g_settings.discBehind;
+				const float         planeAt = Length(sample - from) / (std::max)(Length(to - from), 1.0f);  // the disc, as a fraction of the ray
 
-				// The ray sees through what the camera is let through: stopped
-				// by another reference that is itself small or on a through
-				// layer -- a table between the player and the floor -- it goes
-				// on from just past it, a few times at most.
-				bool there = false;
 				RE::hkpWorldRayCastOutput output;
-				for (int pass = 0; pass < 4; ++pass) {
-					CastRay(a_world, from, to, a_scale, output);
-					if (!output.HasHit() || !output.rootCollidable) {
-						break;
-					}
+				CastRay(a_world, from, to, a_scale, output);
+				bool there = false;
+				bool unknown = false;
+				if (output.HasHit() && output.rootCollidable) {
 					auto* hitRef = RE::TESHavokUtilities::FindCollidableRef(*output.rootCollidable);
 					if ((hitRef ? hitRef->GetFormID() : 0u) == id) {
 						there = true;
-						break;
-					}
-					const RE::NiPoint3 at = from + (to - from) * output.hitFraction;
-					if (!SeesThrough(output.rootCollidable, hitRef, at)) {
-						break;  // something the camera would stop at is in the way: the sample is not this occluder's
-					}
-					from = at + dir * 2.0f;
-					if (Length(to - from) < 1.0f) {
-						break;
+					} else if (output.hitFraction < planeAt - 0.02f) {
+						unknown = true;  // something else, in front of the disc
 					}
 				}
 				a_disc.hit[i] = there;
 				Record(RayKind::Disc, from, to, output, there, a_forWhisker);
 				if (there) {
 					++taken;
+				} else if (!unknown) {
+					++clear;
 				}
 			}
-			return n > 0 ? (taken * 100) / n : 0;
+			const int known = taken + clear;
+			return known > 0 ? (taken * 100) / known : 100;
 		}
 
 		// --- the engine's collector, fronted ------------------------------------------
@@ -293,8 +272,8 @@ namespace mcc::collision
 				const bool    drop = !verdict.stops && !ownBody;
 
 				if (g_verbose) {
-					spdlog::info("  hit {:.3f} {} cover {}%{} {}", W(a_point.contact.separatingNormal), verdict.whole ? "through by layer" : "",
-						verdict.cover, drop ? " DROPPED" : "", Describe(root));
+					spdlog::info("  hit {:.3f} cover {}% {}{}{} {}", W(a_point.contact.separatingNormal), verdict.cover,
+						verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", drop ? "DROPPED" : "kept", Describe(root));
 				}
 				if (drop) {
 					dropped.push_back({ ref, at, verdict.whole });
@@ -451,8 +430,8 @@ namespace mcc::collision
 		DiscView disc;
 		verdict.cover = DiscCover(a_world, a_at, a_ref, a_scale, a_forWhisker, disc);
 		const bool tooSmallOnTheDisc = Decide(a_ref, verdict.cover);
-		const bool isSmall = fade::Fadeable(a_ref, a_at, a_settings);
-		verdict.stops = !tooSmallOnTheDisc && !isSmall;
+		verdict.isSmall = fade::Fadeable(a_ref, a_at, a_settings);
+		verdict.stops = !tooSmallOnTheDisc && !verdict.isSmall;
 		disc.dropped = !verdict.stops;
 		if (Recording()) {
 			g_building.discs.push_back(disc);
