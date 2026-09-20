@@ -83,7 +83,7 @@
         },
         {
           "type": "text",
-          "text": "An occluder stops the camera when enough of the disc's rays land on it AND the shape under the hit is not small."
+          "text": "An occluder stops the camera when it blocks enough of the camera's view of the player AND the shape under the hit is not small."
         },
         {
           "type": "slider",
@@ -104,9 +104,9 @@
         },
         {
           "type": "slider",
-          "text": "Disc radius",
+          "text": "Disc radius (the player, as the camera sees it)",
           "id": "fDiscRadius:Rules",
-          "help": "A disc through the hit point on the occluder, facing where the camera would be, a fixed size in world units. Its samples are reached by rays from there; a sample is taken when the occluder is on the line, clear when the line passes the disc without it.",
+          "help": "A disc about the player, facing the wanted camera position. Each sample is reached by a ray from that position; an occluder on the line blocks the sample, a line reaching the player with nothing solid on it is a sample seen.",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 5,
@@ -138,9 +138,9 @@
         },
         {
           "type": "slider",
-          "text": "Rays end this far behind the disc",
+          "text": "(unused now) rays end this far behind the disc",
           "id": "fDiscBehind:Rules",
-          "help": "The occluder anywhere along a ray takes the sample; the ray stops here so the same kit piece's wall further back does not stand in for a beam.",
+          "help": "No longer used: the rays run from the wanted camera position to the player.",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0,
