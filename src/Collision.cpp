@@ -158,15 +158,13 @@ namespace mcc::collision
 
 		// --- the disc -----------------------------------------------------------------
 		//
-		// How much of the view about a hit the occluder takes, in percent of
-		// the samples: the centre and rings of eight points on a disc through
-		// the hit point, facing the player, out to the disc radius. Each
-		// sample is reached by a ray from the player -- a little way out of
-		// the body -- through it and a set distance past it; the sample is
-		// taken when that ray is stopped by the same reference anywhere along
-		// it. The ray ends past the disc so the same kit piece's wall further
-		// back does not stand in for a beam.
-		constexpr float kBodyClearance = 40.0f;
+		// How much of the player the camera could see past the occluder, in
+		// percent of the samples: the centre and rings of eight points on a
+		// disc about the pivot -- the player's extent -- facing the wanted
+		// camera position, out to the disc radius. Each sample is reached by
+		// a ray from the wanted camera position; the sample is blocked when
+		// the occluder is on that line before the player, seen when the line
+		// reaches the player with nothing solid on it.
 
 		float DiscRadiusNow()
 		{
@@ -177,10 +175,68 @@ namespace mcc::collision
 			return radius;
 		}
 
+		// Whether a sample ray may go on past what it hit: the player's own
+		// body, a through layer, or a shape that is small at that point.
+		bool SeesThrough(const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref, const RE::NiPoint3& a_at)
+		{
+			const auto layer = a_root->GetCollisionLayer();
+			if (layer == RE::COL_LAYER::kCharController) {
+				return true;
+			}
+			const bool ground = layer == RE::COL_LAYER::kTerrain || layer == RE::COL_LAYER::kGround ||
+			                    (a_root->shape && a_root->shape->type == RE::hkpShapeType::kHeightField);
+			const auto rule = ground ? settings::Rule::Stop : RuleFor(layer);
+			if (rule == settings::Rule::Through) {
+				return true;
+			}
+			if (rule == settings::Rule::Stop) {
+				return false;
+			}
+			return fade::Fadeable(a_ref, a_at, g_settings);
+		}
+
+		// Every hit along a ray, nearest first, through the engine's own pick
+		// with an all-hits collector. The world is the player's cell's; the
+		// pick takes the physics lock itself.
+		struct Hit
+		{
+			float                    fraction;
+			const RE::hkpCollidable* root;
+		};
+
+		void AllHits(const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, float a_scale, std::vector<Hit>& a_out)
+		{
+			a_out.clear();
+			auto* player = RE::PlayerCharacter::GetSingleton();
+			auto* cell = player ? player->GetParentCell() : nullptr;
+			auto* world = cell ? cell->GetbhkWorld() : nullptr;
+			if (!world) {
+				return;
+			}
+			RE::hkpAllRayHitTempCollector collector;
+			RE::bhkPickData               pick;
+			pick.rayInput.from = ToHavok(a_from, 1.0f / a_scale);
+			pick.rayInput.to = ToHavok(a_to, 1.0f / a_scale);
+			pick.rayInput.filterInfo = g_castFilter;
+			pick.rayInput.enableShapeCollectionFilter = false;
+			pick.allRayHitTempCollector = &collector;
+			world->PickObject(pick);
+			for (const auto& hit : collector.hits) {
+				if (hit.rootCollidable) {
+					a_out.push_back({ hit.hitFraction, hit.rootCollidable });
+				}
+			}
+			std::sort(a_out.begin(), a_out.end(), [](const Hit& a, const Hit& b) { return a.fraction < b.fraction; });
+		}
+
 		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, RE::TESObjectREFR* a_ref, float a_scale,
 			bool a_forWhisker, DiscView& a_disc)
 		{
-			const RE::NiPoint3 axis = Normalized(a_at - g_castFrom);
+			// The disc is the player, seen from the wanted camera position.
+			(void)a_at;
+			const RE::NiPoint3 eye = g_castTo;
+			const RE::NiPoint3 centre = g_castFrom;
+			const RE::NiPoint3 axis = Normalized(centre - eye);
 			RE::NiPoint3       up{ 0.0f, 0.0f, 1.0f };
 			if (std::fabs(axis.z) > 0.9f) {
 				up = { 1.0f, 0.0f, 0.0f };
@@ -190,50 +246,61 @@ namespace mcc::collision
 			const float        radius = DiscRadiusNow();
 			const int          rings = std::clamp(g_settings.discRings, 1, 3);
 			const auto         id = a_ref ? a_ref->GetFormID() : 0u;
-			a_disc = DiscView{ a_at, u, v, radius, false, a_forWhisker, 0, {}, {} };
+			a_disc = DiscView{ centre, u, v, radius, false, a_forWhisker, 0, {}, {} };
 
 			int n = 0;
-			a_disc.point[n++] = a_at;
+			a_disc.point[n++] = centre;
 			for (int r = 1; r <= rings; ++r) {
 				const float ringRadius = radius * static_cast<float>(r) / static_cast<float>(rings);
 				for (int i = 0; i < 8; ++i) {
 					const float angle = static_cast<float>(i) * (kPi / 4.0f) + (r % 2 ? 0.0f : kPi / 8.0f);
-					a_disc.point[n++] = a_at + (u * std::cos(angle) + v * std::sin(angle)) * ringRadius;
+					a_disc.point[n++] = centre + (u * std::cos(angle) + v * std::sin(angle)) * ringRadius;
 				}
 			}
 			a_disc.samples = n;
 
-			// A sample is taken when the same reference stops its ray. Stopped
-			// by another reference instead, where matters: beyond the disc,
-			// the occluder was not there -- the wall behind a beam -- and the
-			// sample is clear; before it, something stood between the player
-			// and the occluder -- a table under which the camera has gone --
-			// and the sample says nothing, so it is left out of the count.
-			// The share is taken over taken plus clear; with nothing known,
-			// there is no evidence the occluder is small, and it is kept.
-			int taken = 0, clear = 0;
+			// Every hit along a sample's ray, nearest first, walked from the
+			// wanted camera position toward the player: the occluder on the
+			// line blocks the sample; what the camera is let through -- the
+			// player's own body, a through layer, a shape small where it was
+			// hit -- is stepped over; a solid other reference before the
+			// player is something else in the way, and the sample says
+			// nothing; the line reaching the player with nothing solid on it
+			// is a sample seen. The share is blocked over blocked plus seen;
+			// with nothing known there is no evidence the occluder is small,
+			// and it is kept.
+			int              taken = 0, clear = 0;
+			std::vector<Hit> hits;
+			(void)a_world;
 			for (int i = 0; i < n; ++i) {
 				const RE::NiPoint3& sample = a_disc.point[i];
-				const RE::NiPoint3  dir = Normalized(sample - g_castFrom);
-				const float         reach = Length(sample - g_castFrom);
-				const RE::NiPoint3  from = g_castFrom + dir * (std::min)(kBodyClearance, reach * 0.5f);
-				const RE::NiPoint3  to = sample + dir * g_settings.discBehind;
-				const float         planeAt = Length(sample - from) / (std::max)(Length(to - from), 1.0f);  // the disc, as a fraction of the ray
+				const RE::NiPoint3  start = eye;
+				const RE::NiPoint3  to = sample;
 
-				RE::hkpWorldRayCastOutput output;
-				CastRay(a_world, from, to, a_scale, output);
-				bool there = false;
-				bool unknown = false;
-				if (output.HasHit() && output.rootCollidable) {
-					auto* hitRef = RE::TESHavokUtilities::FindCollidableRef(*output.rootCollidable);
-					if ((hitRef ? hitRef->GetFormID() : 0u) == id) {
+				AllHits(start, to, a_scale, hits);
+				bool                      there = false;
+				bool                      unknown = false;
+				RE::hkpWorldRayCastOutput drawn;  // the hit the sample ended on, for drawing
+				for (const auto& hit : hits) {
+					auto*      hitRef = RE::TESHavokUtilities::FindCollidableRef(*hit.root);
+					const auto hitId = hitRef ? hitRef->GetFormID() : 0u;
+					if (hitId == id) {
 						there = true;
-					} else if (output.hitFraction < planeAt - 0.02f) {
-						unknown = true;  // something else, in front of the disc
+						drawn.hitFraction = hit.fraction;
+						drawn.rootCollidable = hit.root;
+						break;
 					}
+					const RE::NiPoint3 at = start + (to - start) * hit.fraction;
+					if (SeesThrough(hit.root, hitRef, at)) {
+						continue;
+					}
+					unknown = true;  // something else solid, between the camera and the player
+					drawn.hitFraction = hit.fraction;
+					drawn.rootCollidable = hit.root;
+					break;
 				}
 				a_disc.hit[i] = there;
-				Record(RayKind::Disc, from, to, output, there, a_forWhisker);
+				Record(RayKind::Disc, start, to, drawn, there, a_forWhisker);
 				if (there) {
 					++taken;
 				} else if (!unknown) {
