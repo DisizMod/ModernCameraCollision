@@ -79,7 +79,8 @@ through `d10dbab`). This is what came out, and why.
   `SKI_PlayerLoadGameAlias`. Made in the 1.6 Creation Kit, which saved it
   with header version 1.71; the version float after `HEDR` was set back to
   1.70 by hand, since 1.5.97 refuses 1.71. Do that again after any resave
-  from that CK (or set it in xEdit). Not ESL-flagged.
+  from that CK (or set it in xEdit). ESL-flagged (the light bit, 0x200, on
+  the TES4 header); its one form ID, 0xD62, is in the classic light range.
 - **The script** `dist/Source/Scripts/MCC_MCM.psc` is compiled by
   `docs/compile-script.ps1` with the Papyrus compiler, against MCM Helper's
   SDK sources and the vanilla + SKSE sources; the `.pex` is in
