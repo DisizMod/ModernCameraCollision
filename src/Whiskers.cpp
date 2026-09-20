@@ -53,10 +53,6 @@ namespace mcc::whiskers
 
 		std::chrono::steady_clock::time_point g_lastLookInput;
 
-		// A whisker's verdict on a reference is remembered for the update, so
-		// ten whiskers on one wall measure it once.
-		std::unordered_map<std::uint32_t, bool> g_verdicts;
-
 		// A whisker's fraction of the whole a_from..a_to: 1 when clear, and 1
 		// as well when what it found is something the camera would be let
 		// through. The ray itself starts clear of the player's capsule.
@@ -76,16 +72,10 @@ namespace mcc::whiskers
 			const RE::NiPoint3 at = start + (a_to - start) * output.hitFraction;
 			const float        fraction = length > 0.0f ? (clearance + output.hitFraction * (length - clearance)) / length : 1.0f;
 			auto*              ref = output.rootCollidable ? RE::TESHavokUtilities::FindCollidableRef(*output.rootCollidable) : nullptr;
-			const auto         id = ref ? ref->GetFormID() : 0u;
 
-			bool stops;
-			if (const auto known = g_verdicts.find(id); known != g_verdicts.end()) {
-				stops = known->second;
-			} else {
-				// Judged from the whisker's own far end: where the camera would be at its angle.
-				stops = collision::Judge(a_world, output.rootCollidable, ref, at, a_to, a_scale, true, a_settings).stops;
-				g_verdicts[id] = stops;
-			}
+			// Judged with a disc of its own, from the whisker's far end: where
+			// the camera would be at its angle.
+			const bool stops = collision::Judge(a_world, output.rootCollidable, ref, at, a_to, a_scale, true, a_settings).stops;
 			if (a_settings.logVerbose) {
 				spdlog::debug("  whisker {} at {:.2f}: {}", a_name, fraction, stops ? "counts" : "let through");
 			}
@@ -98,7 +88,6 @@ namespace mcc::whiskers
 	{
 		g_blockedLeft = g_blockedRight = g_blockedDown = g_blockedUp = 0.0f;
 		g_nearFree = 1.0f;
-		g_verdicts.clear();
 		if (!a_settings.whiskers) {
 			return;
 		}
