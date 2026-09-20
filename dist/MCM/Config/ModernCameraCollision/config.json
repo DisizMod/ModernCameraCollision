@@ -3,224 +3,500 @@
   "modName": "ModernCameraCollision",
   "displayName": "Modern Camera Collision",
   "minMcmVersion": 13,
-  "pluginRequirements": [ "ModernCameraCollision.esp" ],
+  "pluginRequirements": [
+    "ModernCameraCollision.esp"
+  ],
   "content": [
-    { "type": "header", "text": "Modern Camera Collision" },
+    {
+      "type": "header",
+      "text": "Modern Camera Collision"
+    },
     {
       "type": "toggle",
       "text": "Enabled",
+      "id": "bEnabled:General",
       "help": "The third-person camera sees around small things, eases in and out, and fades what it is let through.",
-      "valueOptions": { "sourceType": "ModSettingBool", "id": "bEnabled:General" }
+      "valueOptions": {
+        "sourceType": "ModSettingBool"
+      }
     },
-    { "type": "text", "text": "Changes apply when this menu closes." }
+    {
+      "type": "text",
+      "text": "Changes apply when this menu closes."
+    }
   ],
   "pages": [
     {
       "pageDisplayName": "Motion",
       "content": [
-        { "type": "header", "text": "The distance, in and out" },
+        {
+          "type": "header",
+          "text": "The distance, in and out"
+        },
         {
           "type": "slider",
           "text": "Hold after the way clears (s)",
+          "id": "fHoldSecs:Motion",
           "help": "The pulled-in distance is kept this long after the obstacle is gone, so passing a row of posts does not bounce the camera in and out.",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fHoldSecs:Motion", "min": 0.0, "max": 1.0, "step": 0.05, "formatString": "{2}" }
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.0,
+            "max": 1.0,
+            "step": 0.05,
+            "formatString": "{2}"
+          }
         },
         {
           "type": "slider",
           "text": "Ease in (s)",
+          "id": "fEaseInSecs:Motion",
           "help": "Time constant of the way in. Keep it small: the engine parks the camera a few units short of a surface, and while the way in is still easing the camera is inside it.",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fEaseInSecs:Motion", "min": 0.005, "max": 0.5, "step": 0.005, "formatString": "{3}" }
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.005,
+            "max": 0.5,
+            "step": 0.005,
+            "formatString": "{3}"
+          }
         },
         {
           "type": "slider",
           "text": "Ease out (s)",
+          "id": "fEaseOutSecs:Motion",
           "help": "Time constant of the way back out, after the hold.",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fEaseOutSecs:Motion", "min": 0.01, "max": 1.0, "step": 0.01, "formatString": "{2}" }
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.01,
+            "max": 1.0,
+            "step": 0.01,
+            "formatString": "{2}"
+          }
         }
       ]
     },
     {
       "pageDisplayName": "Rules",
       "content": [
-        { "type": "header", "text": "What stops the camera" },
-        { "type": "text", "text": "An occluder stops the camera when enough of the disc's rays land on it AND the shape under the hit is not small." },
+        {
+          "type": "header",
+          "text": "What stops the camera"
+        },
+        {
+          "type": "text",
+          "text": "An occluder stops the camera when enough of the disc's rays land on it AND the shape under the hit is not small."
+        },
         {
           "type": "slider",
           "text": "Small: bound radius under",
+          "id": "fMinBound:Rules",
           "help": "The trishape under the hit is small when its bounding sphere's radius is under this. Small is faded and never collides. A pot is about 20, a campfire 60-100, a kit wall or floor 190-220.",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fMinBound:Rules", "min": 5, "max": 600, "step": 5, "formatString": "{0}" }
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 5,
+            "max": 600,
+            "step": 5,
+            "formatString": "{0}"
+          }
         },
-        { "type": "header", "text": "The disc" },
+        {
+          "type": "header",
+          "text": "The disc"
+        },
         {
           "type": "slider",
           "text": "Disc radius",
+          "id": "fDiscRadius:Rules",
           "help": "A disc through the hit point, facing the player. Its samples are reached by rays from the player; a sample is taken when the same object is there.",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fDiscRadius:Rules", "min": 5, "max": 150, "step": 1, "formatString": "{0}" }
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 5,
+            "max": 150,
+            "step": 1,
+            "formatString": "{0}"
+          }
         },
         {
           "type": "toggle",
           "text": "Scale the disc with the camera's distance",
+          "id": "bDiscScales:Rules",
           "help": "The radius is multiplied by the camera's distance over the reference distance.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bDiscScales:Rules" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "type": "slider",
           "text": "Reference distance",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fDiscReference:Rules", "min": 50, "max": 500, "step": 10, "formatString": "{0}" }
+          "id": "fDiscReference:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 50,
+            "max": 500,
+            "step": 10,
+            "formatString": "{0}"
+          }
         },
         {
           "type": "slider",
           "text": "Rays end this far behind the disc",
+          "id": "fDiscBehind:Rules",
           "help": "The same object anywhere along a ray takes the sample; the ray stops here so the same kit piece's wall further back does not stand in for a beam.",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fDiscBehind:Rules", "min": 0, "max": 120, "step": 5, "formatString": "{0}" }
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 120,
+            "step": 5,
+            "formatString": "{0}"
+          }
         },
         {
           "type": "slider",
           "text": "Sample rings on the disc",
+          "id": "iDiscRings:Rules",
           "help": "Rings of eight samples, plus the centre: 9, 17 or 25 rays per measured hit.",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iDiscRings:Rules", "min": 1, "max": 3, "step": 1, "formatString": "{0}" }
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "formatString": "{0}"
+          }
         },
         {
           "type": "slider",
           "text": "Dropped when the occluder takes less than",
+          "id": "iDropBelowPercent:Rules",
           "help": "Percent of the disc's samples. Once dropped, an occluder needs this plus 12 points to be kept again; once kept, 25 under it to be dropped.",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iDropBelowPercent:Rules", "min": 0, "max": 100, "step": 5, "formatString": "{0}%" }
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "formatString": "{0}%"
+          }
         }
       ]
     },
     {
       "pageDisplayName": "Whiskers",
       "content": [
-        { "type": "header", "text": "Seeing walls coming" },
+        {
+          "type": "header",
+          "text": "Seeing walls coming"
+        },
         {
           "type": "toggle",
           "text": "Whiskers",
+          "id": "bWhiskers:Whiskers",
           "help": "Rays from the player to where the camera would be a little to either side, above and below. A blocked one says a wall is coming before the camera meets it.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bWhiskers:Whiskers" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
-        { "type": "toggle", "text": "Vertical whiskers", "valueOptions": { "sourceType": "ModSettingBool", "id": "bVertical:Whiskers" } },
-        { "type": "toggle", "text": "Diagonal whiskers", "valueOptions": { "sourceType": "ModSettingBool", "id": "bDiagonal:Whiskers" } },
+        {
+          "type": "toggle",
+          "text": "Vertical whiskers",
+          "id": "bVertical:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Diagonal whiskers",
+          "id": "bDiagonal:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
         {
           "type": "toggle",
           "text": "Shorten the distance to what the near whiskers measure free",
+          "id": "bShorten:Whiskers",
           "help": "The whiskers nearest the camera's line cap the distance, so the camera is already coming in as a wall approaches from behind.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bShorten:Whiskers" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
-        { "type": "header", "text": "Swing (experimental)" },
+        {
+          "type": "header",
+          "text": "Swing (experimental)"
+        },
         {
           "type": "toggle",
           "text": "Swing away from a blocked side",
+          "id": "bSwing:Whiskers",
           "help": "Turns the camera's free rotation away from the side a whisker finds blocked. Off by default: it does not yet consider where the player is heading.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bSwing:Whiskers" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "type": "slider",
           "text": "Yaw swing (deg/s at fully blocked)",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fSwingYawDegPerSec:Whiskers", "min": 0, "max": 180, "step": 5, "formatString": "{0}" }
+          "id": "fSwingYawDegPerSec:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 180,
+            "step": 5,
+            "formatString": "{0}"
+          }
         },
         {
           "type": "slider",
           "text": "Pitch swing (deg/s at fully blocked)",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fSwingPitchDegPerSec:Whiskers", "min": 0, "max": 180, "step": 5, "formatString": "{0}" }
+          "id": "fSwingPitchDegPerSec:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 180,
+            "step": 5,
+            "formatString": "{0}"
+          }
         },
-        { "type": "toggle", "text": "Swing yaw the other way", "valueOptions": { "sourceType": "ModSettingBool", "id": "bSwingYawInverted:Whiskers" } },
-        { "type": "toggle", "text": "Swing pitch the other way", "valueOptions": { "sourceType": "ModSettingBool", "id": "bSwingPitchInverted:Whiskers" } },
+        {
+          "type": "toggle",
+          "text": "Swing yaw the other way",
+          "id": "bSwingYawInverted:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Swing pitch the other way",
+          "id": "bSwingPitchInverted:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
         {
           "type": "toggle",
           "text": "The player wins: no swing while turning the camera",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bIntentWins:Whiskers" }
+          "id": "bIntentWins:Whiskers",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         }
       ]
     },
     {
       "pageDisplayName": "Fade",
       "content": [
-        { "type": "header", "text": "What the camera is let through" },
-        { "type": "toggle", "text": "Fade it", "valueOptions": { "sourceType": "ModSettingBool", "id": "bFade:Fade" } },
+        {
+          "type": "header",
+          "text": "What the camera is let through"
+        },
+        {
+          "type": "toggle",
+          "text": "Fade it",
+          "id": "bFade:Fade",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
         {
           "type": "slider",
           "text": "Faded to",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fAlpha:Fade", "min": 0.0, "max": 1.0, "step": 0.05, "formatString": "{2}" }
+          "id": "fAlpha:Fade",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.0,
+            "max": 1.0,
+            "step": 0.05,
+            "formatString": "{2}"
+          }
         },
         {
           "type": "slider",
           "text": "Over (s)",
-          "valueOptions": { "sourceType": "ModSettingFloat", "id": "fSecs:Fade", "min": 0.0, "max": 1.0, "step": 0.05, "formatString": "{2}" }
+          "id": "fSecs:Fade",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.0,
+            "max": 1.0,
+            "step": 0.05,
+            "formatString": "{2}"
+          }
         },
         {
           "type": "toggle",
           "text": "Fade shapes that carry their own alpha",
+          "id": "bFadeOwnAlpha:Fade",
           "help": "A window's frame, leaves, a grate. Their shadow pass multiplies the texture's alpha by the fade, so their shadow goes with it -- a window's light shaft most visibly.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bFadeOwnAlpha:Fade" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "type": "toggle",
           "text": "Faded shapes keep casting shadows",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bKeepShadows:Fade" }
+          "id": "bKeepShadows:Fade",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         }
       ]
     },
     {
       "pageDisplayName": "Layers",
       "content": [
-        { "type": "header", "text": "A rule per collision layer" },
-        { "type": "text", "text": "Measure: the disc and the size decide. Stop: always stops the camera. Through: never stops it, faded whole." },
         {
-          "type": "menu", "text": "L_STATIC",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iL_STATIC:Layers", "options": [ "Measure", "Stop", "Through" ], "shortNames": [ "Measure", "Stop", "Through" ] }
+          "type": "header",
+          "text": "A rule per collision layer"
         },
         {
-          "type": "menu", "text": "L_ANIMSTATIC",
+          "type": "text",
+          "text": "Measure: the disc and the size decide. Stop: always stops the camera. Through: never stops it, faded whole."
+        },
+        {
+          "type": "enum",
+          "text": "L_STATIC",
+          "id": "iL_STATIC:Layers",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "options": [
+              "Measure",
+              "Stop",
+              "Through"
+            ],
+            "shortNames": [
+              "Measure",
+              "Stop",
+              "Through"
+            ]
+          }
+        },
+        {
+          "type": "enum",
+          "text": "L_ANIMSTATIC",
+          "id": "iL_ANIMSTATIC:Layers",
           "help": "Doors and gates are here, with levers and the like.",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iL_ANIMSTATIC:Layers", "options": [ "Measure", "Stop", "Through" ], "shortNames": [ "Measure", "Stop", "Through" ] }
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "options": [
+              "Measure",
+              "Stop",
+              "Through"
+            ],
+            "shortNames": [
+              "Measure",
+              "Stop",
+              "Through"
+            ]
+          }
         },
         {
-          "type": "menu", "text": "L_TREES",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iL_TREES:Layers", "options": [ "Measure", "Stop", "Through" ], "shortNames": [ "Measure", "Stop", "Through" ] }
+          "type": "enum",
+          "text": "L_TREES",
+          "id": "iL_TREES:Layers",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "options": [
+              "Measure",
+              "Stop",
+              "Through"
+            ],
+            "shortNames": [
+              "Measure",
+              "Stop",
+              "Through"
+            ]
+          }
         },
         {
-          "type": "menu", "text": "L_TERRAIN",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iL_TERRAIN:Layers", "options": [ "Measure", "Stop", "Through" ], "shortNames": [ "Measure", "Stop", "Through" ] }
+          "type": "enum",
+          "text": "L_TERRAIN",
+          "id": "iL_TERRAIN:Layers",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "options": [
+              "Measure",
+              "Stop",
+              "Through"
+            ],
+            "shortNames": [
+              "Measure",
+              "Stop",
+              "Through"
+            ]
+          }
         },
         {
-          "type": "menu", "text": "L_GROUND",
-          "valueOptions": { "sourceType": "ModSettingInt", "id": "iL_GROUND:Layers", "options": [ "Measure", "Stop", "Through" ], "shortNames": [ "Measure", "Stop", "Through" ] }
+          "type": "enum",
+          "text": "L_GROUND",
+          "id": "iL_GROUND:Layers",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "options": [
+              "Measure",
+              "Stop",
+              "Through"
+            ],
+            "shortNames": [
+              "Measure",
+              "Stop",
+              "Through"
+            ]
+          }
         }
       ]
     },
     {
       "pageDisplayName": "Debug",
       "content": [
-        { "type": "header", "text": "Drawn over the game" },
+        {
+          "type": "header",
+          "text": "Drawn over the game"
+        },
         {
           "type": "toggle",
           "text": "Draw the discs",
+          "id": "bDrawDiscs:Debug",
           "help": "The disc at each hit: yellow kept, orange dropped (pink and purple when measured for a whisker), with a mark where each sample found the occluder.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bDrawDiscs:Debug" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "type": "toggle",
           "text": "Draw the whiskers",
+          "id": "bDrawWhiskers:Debug",
           "help": "Red where a whisker found something the camera would stop at, green where clear or let through.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bDrawWhiskers:Debug" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "type": "toggle",
           "text": "Draw the rays",
+          "id": "bDrawRays:Debug",
           "help": "The engine's own sweep in white, ending where the camera was put, and every disc sample's ray from the player.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bDrawRays:Debug" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "type": "toggle",
           "text": "Draw the faded shapes' bounds",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bDrawBounds:Debug" }
+          "id": "bDrawBounds:Debug",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
-        { "type": "header", "text": "Log" },
+        {
+          "type": "header",
+          "text": "Log"
+        },
         {
           "type": "toggle",
           "text": "Verbose log",
+          "id": "bLogVerbose:Debug",
           "help": "The first ten camera updates and then one in sixty, hit by hit, in Documents/My Games/Skyrim Special Edition/SKSE/ModernCameraCollision.log.",
-          "valueOptions": { "sourceType": "ModSettingBool", "id": "bLogVerbose:Debug" }
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         }
       ]
     }
