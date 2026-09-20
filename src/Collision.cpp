@@ -262,12 +262,10 @@ namespace mcc::collision
 			// wanted camera position toward the player: the occluder on the
 			// line blocks the sample; what the camera is let through -- the
 			// player's own body, a through layer, a shape small where it was
-			// hit -- is stepped over; a solid other reference before the
-			// player is something else in the way, and the sample says
-			// nothing; the line reaching the player with nothing solid on it
-			// is a sample seen. The share is blocked over blocked plus seen;
-			// with nothing known there is no evidence the occluder is small,
-			// and it is kept.
+			// hit -- is stepped over; anything else solid ends the walk, and
+			// that sample is not the occluder's: whatever hides that part of
+			// the player, it is not this. The share is what the occluder
+			// blocks over all the samples.
 			int              taken = 0, clear = 0;
 			std::vector<Hit> hits;
 			(void)a_world;
@@ -278,7 +276,7 @@ namespace mcc::collision
 
 				AllHits(start, to, a_scale, hits);
 				bool                      there = false;
-				bool                      unknown = false;
+				const bool                unknown = false;
 				RE::hkpWorldRayCastOutput drawn;  // the hit the sample ended on, for drawing
 				for (const auto& hit : hits) {
 					auto*      hitRef = RE::TESHavokUtilities::FindCollidableRef(*hit.root);
@@ -293,8 +291,7 @@ namespace mcc::collision
 					if (SeesThrough(hit.root, hitRef, at)) {
 						continue;
 					}
-					unknown = true;  // something else solid, between the camera and the player
-					drawn.hitFraction = hit.fraction;
+					drawn.hitFraction = hit.fraction;  // something else solid: not this occluder's doing
 					drawn.rootCollidable = hit.root;
 					break;
 				}
