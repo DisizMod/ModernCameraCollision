@@ -166,13 +166,20 @@ namespace mcc::collision
 		// the occluder is on that line before the player, seen when the line
 		// reaches the player with nothing solid on it.
 
-		float DiscRadiusNow()
+		// A point of the body's stadium at angle a_angle, scaled by a_scale
+		// toward the centre: half-width w across, the straight sides run
+		// from -below+w to above-w, with half-circles of radius w capping
+		// them. Returned in the plane's (across, up) coordinates.
+		void StadiumPoint(float a_angle, float a_scale, float& a_x, float& a_y)
 		{
-			float radius = g_settings.discRadius;
-			if (g_settings.discScales) {
-				radius *= (std::max)(g_castLength, 1.0f) / (std::max)(g_settings.discReference, 1.0f);
-			}
-			return radius;
+			const float w = g_settings.bodyHalfWidth * a_scale;
+			const float above = g_settings.bodyAbove * a_scale;
+			const float below = g_settings.bodyBelow * a_scale;
+			const float c = std::cos(a_angle), s = std::sin(a_angle);
+			// The cap's centre: up for the upper half, down for the lower.
+			const float capY = s >= 0.0f ? (std::max)(above - w, 0.0f) : -(std::max)(below - w, 0.0f);
+			a_x = w * c;
+			a_y = capY + w * s;
 		}
 
 		// Whether a sample ray may go on past what it hit: the player's own
@@ -240,20 +247,29 @@ namespace mcc::collision
 			if (std::fabs(axis.z) > 0.9f) {
 				up = { 1.0f, 0.0f, 0.0f };
 			}
+			// Across the body, and up it, in the plane facing the eye.
 			const RE::NiPoint3 u = Normalized(Cross(axis, up));
-			const RE::NiPoint3 v = Normalized(Cross(axis, u));
-			const float        radius = DiscRadiusNow();
+			const RE::NiPoint3 v = Normalized(Cross(u, axis));
 			const int          rings = std::clamp(g_settings.discRings, 1, 3);
 			const auto         id = a_ref ? a_ref->GetFormID() : 0u;
-			a_disc = DiscView{ centre, u, v, radius, false, a_forWhisker, 0, {}, {} };
+			a_disc = DiscView{ centre, {}, false, a_forWhisker, 0, {}, {} };
 
+			// The outline, for drawing; the samples on it and on smaller
+			// copies inside, plus the centre.
+			for (int i = 0; i < 32; ++i) {
+				float x, y;
+				StadiumPoint(static_cast<float>(i) * (2.0f * kPi / 32.0f), 1.0f, x, y);
+				a_disc.outline[i] = centre + u * x + v * y;
+			}
 			int n = 0;
 			a_disc.point[n++] = centre;
 			for (int r = 1; r <= rings; ++r) {
-				const float ringRadius = radius * static_cast<float>(r) / static_cast<float>(rings);
+				const float scale = static_cast<float>(r) / static_cast<float>(rings);
 				for (int i = 0; i < 8; ++i) {
 					const float angle = static_cast<float>(i) * (kPi / 4.0f) + (r % 2 ? 0.0f : kPi / 8.0f);
-					a_disc.point[n++] = centre + (u * std::cos(angle) + v * std::sin(angle)) * ringRadius;
+					float       x, y;
+					StadiumPoint(angle, scale, x, y);
+					a_disc.point[n++] = centre + u * x + v * y;
 				}
 			}
 			a_disc.samples = n;

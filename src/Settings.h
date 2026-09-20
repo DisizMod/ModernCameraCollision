@@ -29,11 +29,14 @@ namespace mcc::settings
 
 		// [Rules]
 		float minBound = 100.0f;     // small: the shape under the hit with a bound radius under this
-		float discRadius = 30.0f;    // the disc at a hit, facing the player
-		bool  discScales = false;    // ... scaled by the camera's distance over the reference
-		float discReference = 150.0f;
-		float discBehind = 40.0f;    // the disc's rays end this far past it
-		int   discRings = 2;         // sample rings of eight, plus the centre
+		// The body, as the camera sees it: a stadium -- a rectangle with
+		// rounded ends -- upright in the plane facing the eye, about the
+		// pivot the sweep starts from. Half-width for the shoulders, a
+		// height above the pivot for the head, one below for the legs.
+		float bodyHalfWidth = 30.0f;
+		float bodyAbove = 30.0f;
+		float bodyBelow = 100.0f;
+		int   discRings = 2;         // sample rings of eight on the outline and inside it, plus the centre
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
 		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 

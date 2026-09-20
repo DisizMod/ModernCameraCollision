@@ -73,9 +73,7 @@ namespace mcc::collision
 	struct DiscView
 	{
 		RE::NiPoint3 at;
-		RE::NiPoint3 u;
-		RE::NiPoint3 v;
-		float        radius;
+		RE::NiPoint3 outline[32];  // the body's stadium, for drawing
 		bool         dropped;
 		bool         forWhisker;
 		int          samples;

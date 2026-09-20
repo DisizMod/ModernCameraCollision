@@ -48,10 +48,9 @@ namespace mcc::settings
 			f("Motion", "fEaseOutSecs", a_values.easeOutSecs);
 
 			f("Rules", "fMinBound", a_values.minBound);
-			f("Rules", "fDiscRadius", a_values.discRadius);
-			b("Rules", "bDiscScales", a_values.discScales);
-			f("Rules", "fDiscReference", a_values.discReference);
-			f("Rules", "fDiscBehind", a_values.discBehind);
+			f("Rules", "fBodyHalfWidth", a_values.bodyHalfWidth);
+			f("Rules", "fBodyAbove", a_values.bodyAbove);
+			f("Rules", "fBodyBelow", a_values.bodyBelow);
 			i("Rules", "iDiscRings", a_values.discRings);
 			i("Rules", "iDropBelowPercent", a_values.dropBelowPercent);
 			f("Rules", "fPartDistance", a_values.partDistance);
@@ -147,11 +146,13 @@ namespace mcc::settings
 			std::lock_guard<std::mutex> lock(g_mutex);
 			g_values = values;
 		}
-		spdlog::info("settings: defaults {}, user file {}; enabled {}, min bound {:.0f}, disc {:.0f} x {} ring(s) drop below {}%, "
-					 "hold {:.2f}s ease in {:.3f}s out {:.2f}s, whiskers {} shorten {} swing {}, fade {} at {:.2f} over {:.2f}s, {} layer rule(s)",
-			defaults ? "read" : "missing", user ? "read" : "missing", values.enabled, values.minBound, values.discRadius,
-			values.discRings, values.dropBelowPercent, values.holdSecs, values.easeInSecs, values.easeOutSecs, values.whiskers,
-			values.shorten, values.swing, values.fade, values.fadeAlpha, values.fadeSecs, values.layerRules.size());
+		spdlog::info("settings: defaults {}, user file {}; enabled {}, min bound {:.0f}, body {:.0f} wide {:.0f} above {:.0f} below x {} ring(s), "
+					 "drop below {}%, same part {:.0f}, hold {:.2f}s ease in {:.3f}s out {:.2f}s, whiskers {} shorten {} swing {}, "
+					 "fade {} at {:.2f} over {:.2f}s, {} layer rule(s)",
+			defaults ? "read" : "missing", user ? "read" : "missing", values.enabled, values.minBound, values.bodyHalfWidth * 2.0f,
+			values.bodyAbove, values.bodyBelow, values.discRings, values.dropBelowPercent, values.partDistance, values.holdSecs,
+			values.easeInSecs, values.easeOutSecs, values.whiskers, values.shorten, values.swing, values.fade, values.fadeAlpha,
+			values.fadeSecs, values.layerRules.size());
 	}
 
 	void Install()

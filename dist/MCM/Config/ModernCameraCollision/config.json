@@ -100,60 +100,53 @@
         },
         {
           "type": "header",
-          "text": "The disc"
+          "text": "The body, as the camera sees it"
+        },
+        {
+          "type": "text",
+          "text": "A stadium (a rectangle with rounded ends) standing upright about the pivot, facing the camera. Each sample is reached by a ray from where the camera would be; the occluder on that ray, near the point the camera is about to hit, blocks the sample."
         },
         {
           "type": "slider",
-          "text": "Disc radius (the player, as the camera sees it)",
-          "id": "fDiscRadius:Rules",
-          "help": "A disc about the player, facing the wanted camera position. Each sample is reached by a ray from that position; an occluder on the line blocks the sample, a line reaching the player with nothing solid on it is a sample seen.",
+          "text": "Half-width (shoulders)",
+          "id": "fBodyHalfWidth:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 5,
-            "max": 150,
+            "max": 120,
             "step": 1,
             "formatString": "{0}"
           }
         },
         {
-          "type": "toggle",
-          "text": "Scale the disc with the camera's distance",
-          "id": "bDiscScales:Rules",
-          "help": "The radius is multiplied by the camera's distance over the reference distance.",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
           "type": "slider",
-          "text": "Reference distance",
-          "id": "fDiscReference:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 50,
-            "max": 500,
-            "step": 10,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "(unused now) rays end this far behind the disc",
-          "id": "fDiscBehind:Rules",
-          "help": "No longer used: the rays run from the wanted camera position to the player.",
+          "text": "Above the pivot (head)",
+          "id": "fBodyAbove:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0,
-            "max": 120,
+            "max": 150,
             "step": 5,
             "formatString": "{0}"
           }
         },
         {
           "type": "slider",
-          "text": "Sample rings on the disc",
+          "text": "Below the pivot (legs)",
+          "id": "fBodyBelow:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 200,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Sample rings on the body",
           "id": "iDiscRings:Rules",
-          "help": "Rings of eight samples, plus the centre: 9, 17 or 25 rays per measured hit.",
+          "help": "Rings of eight samples on the outline and on smaller copies inside it, plus the centre: 9, 17 or 25 rays per measured hit.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 1,
