@@ -144,13 +144,25 @@
         },
         {
           "type": "slider",
-          "text": "Sample rings on the body",
-          "id": "iDiscRings:Rules",
-          "help": "Rings of eight samples on the outline and on smaller copies inside it, plus the centre: 9, 17 or 25 rays per measured hit.",
+          "text": "Sample columns across the body",
+          "id": "iBodyColumns:Rules",
+          "help": "The grid of rays across and down the body; points outside the stadium are left out. Columns times rows is the number of rays per measured hit.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
-            "min": 1,
-            "max": 3,
+            "min": 3,
+            "max": 7,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Sample rows down the body",
+          "id": "iBodyRows:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 3,
+            "max": 9,
             "step": 1,
             "formatString": "{0}"
           }

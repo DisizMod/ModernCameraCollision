@@ -51,7 +51,8 @@ namespace mcc::settings
 			f("Rules", "fBodyHalfWidth", a_values.bodyHalfWidth);
 			f("Rules", "fBodyAbove", a_values.bodyAbove);
 			f("Rules", "fBodyBelow", a_values.bodyBelow);
-			i("Rules", "iDiscRings", a_values.discRings);
+			i("Rules", "iBodyColumns", a_values.bodyColumns);
+			i("Rules", "iBodyRows", a_values.bodyRows);
 			i("Rules", "iDropBelowPercent", a_values.dropBelowPercent);
 			f("Rules", "fPartDistance", a_values.partDistance);
 
@@ -136,7 +137,8 @@ namespace mcc::settings
 		const bool user = Read(kUser, values);
 
 		// Kept sane whatever the files say.
-		values.discRings = std::clamp(values.discRings, 1, 3);
+		values.bodyColumns = std::clamp(values.bodyColumns, 3, 7);
+		values.bodyRows = std::clamp(values.bodyRows, 3, 9);
 		values.dropBelowPercent = std::clamp(values.dropBelowPercent, 0, 100);
 		values.fadeAlpha = std::clamp(values.fadeAlpha, 0.0f, 1.0f);
 		values.easeInSecs = (std::max)(values.easeInSecs, 0.005f);
@@ -146,11 +148,11 @@ namespace mcc::settings
 			std::lock_guard<std::mutex> lock(g_mutex);
 			g_values = values;
 		}
-		spdlog::info("settings: defaults {}, user file {}; enabled {}, min bound {:.0f}, body {:.0f} wide {:.0f} above {:.0f} below x {} ring(s), "
+		spdlog::info("settings: defaults {}, user file {}; enabled {}, min bound {:.0f}, body {:.0f} wide {:.0f} above {:.0f} below, {} x {} samples, "
 					 "drop below {}%, same part {:.0f}, hold {:.2f}s ease in {:.3f}s out {:.2f}s, whiskers {} shorten {} swing {}, "
 					 "fade {} at {:.2f} over {:.2f}s, {} layer rule(s)",
 			defaults ? "read" : "missing", user ? "read" : "missing", values.enabled, values.minBound, values.bodyHalfWidth * 2.0f,
-			values.bodyAbove, values.bodyBelow, values.discRings, values.dropBelowPercent, values.partDistance, values.holdSecs,
+			values.bodyAbove, values.bodyBelow, values.bodyColumns, values.bodyRows, values.dropBelowPercent, values.partDistance, values.holdSecs,
 			values.easeInSecs, values.easeOutSecs, values.whiskers, values.shorten, values.swing, values.fade, values.fadeAlpha,
 			values.fadeSecs, values.layerRules.size());
 	}

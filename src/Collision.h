@@ -77,8 +77,8 @@ namespace mcc::collision
 		bool         dropped;
 		bool         forWhisker;
 		int          samples;
-		RE::NiPoint3 point[25];
-		bool         hit[25];
+		RE::NiPoint3 point[64];
+		bool         hit[64];
 	};
 
 	struct Frame

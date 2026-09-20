@@ -36,7 +36,8 @@ namespace mcc::settings
 		float bodyHalfWidth = 30.0f;
 		float bodyAbove = 30.0f;
 		float bodyBelow = 100.0f;
-		int   discRings = 2;         // sample rings of eight on the outline and inside it, plus the centre
+		int   bodyColumns = 5;       // sample grid across the body...
+		int   bodyRows = 5;          // ... and down it; points outside the stadium are left out
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
 		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 

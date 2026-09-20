@@ -166,6 +166,26 @@ namespace mcc::collision
 		// the occluder is on that line before the player, seen when the line
 		// reaches the player with nothing solid on it.
 
+		// Whether a point of the plane, in (across, up) about the pivot, is
+		// inside the body's stadium.
+		bool InStadium(float a_x, float a_y)
+		{
+			const float w = g_settings.bodyHalfWidth;
+			const float above = g_settings.bodyAbove;
+			const float below = g_settings.bodyBelow;
+			if (std::fabs(a_x) > w) {
+				return false;
+			}
+			const float top = (std::max)(above - w, 0.0f);
+			const float bottom = -(std::max)(below - w, 0.0f);
+			if (a_y >= bottom && a_y <= top) {
+				return true;  // the straight part
+			}
+			const float capY = a_y > top ? top : bottom;
+			const float dy = a_y - capY;
+			return a_x * a_x + dy * dy <= w * w;
+		}
+
 		// A point of the body's stadium at angle a_angle, scaled by a_scale
 		// toward the centre: half-width w across, the straight sides run
 		// from -below+w to above-w, with half-circles of radius w capping
@@ -250,25 +270,29 @@ namespace mcc::collision
 			// Across the body, and up it, in the plane facing the eye.
 			const RE::NiPoint3 u = Normalized(Cross(axis, up));
 			const RE::NiPoint3 v = Normalized(Cross(u, axis));
-			const int          rings = std::clamp(g_settings.discRings, 1, 3);
 			const auto         id = a_ref ? a_ref->GetFormID() : 0u;
 			a_disc = DiscView{ centre, {}, false, a_forWhisker, 0, {}, {} };
 
-			// The outline, for drawing; the samples on it and on smaller
-			// copies inside, plus the centre.
+			// The outline, for drawing; the samples on a grid across and
+			// down the body, those outside the stadium left out.
 			for (int i = 0; i < 32; ++i) {
 				float x, y;
 				StadiumPoint(static_cast<float>(i) * (2.0f * kPi / 32.0f), 1.0f, x, y);
 				a_disc.outline[i] = centre + u * x + v * y;
 			}
-			int n = 0;
-			a_disc.point[n++] = centre;
-			for (int r = 1; r <= rings; ++r) {
-				const float scale = static_cast<float>(r) / static_cast<float>(rings);
-				for (int i = 0; i < 8; ++i) {
-					const float angle = static_cast<float>(i) * (kPi / 4.0f) + (r % 2 ? 0.0f : kPi / 8.0f);
-					float       x, y;
-					StadiumPoint(angle, scale, x, y);
+			const int   columns = std::clamp(g_settings.bodyColumns, 3, 7);
+			const int   rows = std::clamp(g_settings.bodyRows, 3, 9);
+			const float w = g_settings.bodyHalfWidth;
+			const float above = g_settings.bodyAbove;
+			const float below = g_settings.bodyBelow;
+			int         n = 0;
+			for (int r = 0; r < rows && n < 64; ++r) {
+				const float y = rows > 1 ? -below + (above + below) * static_cast<float>(r) / static_cast<float>(rows - 1) : 0.0f;
+				for (int c = 0; c < columns && n < 64; ++c) {
+					const float x = columns > 1 ? -w + 2.0f * w * static_cast<float>(c) / static_cast<float>(columns - 1) : 0.0f;
+					if (!InStadium(x, y)) {
+						continue;
+					}
 					a_disc.point[n++] = centre + u * x + v * y;
 				}
 			}
