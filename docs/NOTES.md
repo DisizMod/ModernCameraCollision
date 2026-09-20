@@ -33,7 +33,14 @@ through `d10dbab`). This is what came out, and why.
 5. **The category is the collision layer** (the COLL records, `L_CAMERA`'s
    CNAM list is what the camera can hit at all), never the base form or the
    model path. A layer gets a rule only after checking what is actually on
-   it in Skyrim.esm.
+   it in Skyrim.esm. `L_CAMERA` collides with (Skyrim.esm, read at data
+   load): L_STATIC (1), L_ANIMSTATIC (2), L_TRANSPARENT (3), L_BIPED (8),
+   L_TREES (9), L_TERRAIN (13), L_TRAP (14), L_CLOUDTRAP (16), L_GROUND (17),
+   L_DEBRIS_LARGE (20), L_TRANSPARENT_SMALL (26), L_TRANSPARENT_SMALL_ANIM
+   (28), L_CHARCONTROLLER (30), L_ITEMPICKER (40), L_LOS (41),
+   L_CUSTOMPICK1 (43), L_CUSTOMPICK2 (44), L_UNIDENTIFIED (0). The Layers
+   page offers rules for the first five; any other takes an `iL_<name>` key
+   under `[Layers]` in the INI once its contents have been looked at.
 6. **Motion**: the distance eases in toward the nearer of the engine's stop
    and the whiskers' cap (small constant — the engine parks the camera ~5
    units short of a surface, so easing in is time spent inside it), is held
