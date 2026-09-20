@@ -329,8 +329,13 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 		{
 			fade::Tick();
 
+			// Nothing is drawn with a menu up: the pass runs after the UI, so
+			// it would sit on top of the menu.
 			const auto settings = settings::Current();
-			if (settings.drawDiscs || settings.drawWhiskers || settings.drawRays || settings.drawBounds) {
+			auto*      ui = RE::UI::GetSingleton();
+			const bool menuUp = ui && (ui->GameIsPaused() || ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
+										  ui->IsMenuOpen(RE::Console::MENU_NAME) || ui->numPausesGame > 0);
+			if (!menuUp && (settings.drawDiscs || settings.drawWhiskers || settings.drawRays || settings.drawBounds)) {
 				DXGI_SWAP_CHAIN_DESC description{};
 				if (SUCCEEDED(a_swapChain->GetDesc(&description))) {
 					g_width = static_cast<float>(description.BufferDesc.Width);

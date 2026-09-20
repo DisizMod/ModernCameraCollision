@@ -177,6 +177,26 @@ namespace mcc::collision
 			return radius;
 		}
 
+		// Whether a sample ray may go on past what it hit: the player's own
+		// body, a through layer, or a shape that is small at that point.
+		bool SeesThrough(const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref, const RE::NiPoint3& a_at)
+		{
+			const auto layer = a_root->GetCollisionLayer();
+			if (layer == RE::COL_LAYER::kCharController) {
+				return true;
+			}
+			const bool ground = layer == RE::COL_LAYER::kTerrain || layer == RE::COL_LAYER::kGround ||
+			                    (a_root->shape && a_root->shape->type == RE::hkpShapeType::kHeightField);
+			const auto rule = ground ? settings::Rule::Stop : RuleFor(layer);
+			if (rule == settings::Rule::Through) {
+				return true;
+			}
+			if (rule == settings::Rule::Stop) {
+				return false;
+			}
+			return fade::Fadeable(a_ref, a_at, g_settings);
+		}
+
 		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, RE::TESObjectREFR* a_ref, float a_scale,
 			bool a_forWhisker, DiscView& a_disc)
 		{
@@ -208,15 +228,33 @@ namespace mcc::collision
 				const RE::NiPoint3& sample = a_disc.point[i];
 				const RE::NiPoint3  dir = Normalized(sample - g_castFrom);
 				const float         reach = Length(sample - g_castFrom);
-				const RE::NiPoint3  from = g_castFrom + dir * (std::min)(kBodyClearance, reach * 0.5f);
+				RE::NiPoint3        from = g_castFrom + dir * (std::min)(kBodyClearance, reach * 0.5f);
 				const RE::NiPoint3  to = sample + dir * g_settings.discBehind;
 
-				RE::hkpWorldRayCastOutput output;
-				CastRay(a_world, from, to, a_scale, output);
+				// The ray sees through what the camera is let through: stopped
+				// by another reference that is itself small or on a through
+				// layer -- a table between the player and the floor -- it goes
+				// on from just past it, a few times at most.
 				bool there = false;
-				if (output.HasHit() && output.rootCollidable) {
+				RE::hkpWorldRayCastOutput output;
+				for (int pass = 0; pass < 4; ++pass) {
+					CastRay(a_world, from, to, a_scale, output);
+					if (!output.HasHit() || !output.rootCollidable) {
+						break;
+					}
 					auto* hitRef = RE::TESHavokUtilities::FindCollidableRef(*output.rootCollidable);
-					there = (hitRef ? hitRef->GetFormID() : 0u) == id;
+					if ((hitRef ? hitRef->GetFormID() : 0u) == id) {
+						there = true;
+						break;
+					}
+					const RE::NiPoint3 at = from + (to - from) * output.hitFraction;
+					if (!SeesThrough(output.rootCollidable, hitRef, at)) {
+						break;  // something the camera would stop at is in the way: the sample is not this occluder's
+					}
+					from = at + dir * 2.0f;
+					if (Length(to - from) < 1.0f) {
+						break;
+					}
 				}
 				a_disc.hit[i] = there;
 				Record(RayKind::Disc, from, to, output, there, a_forWhisker);
