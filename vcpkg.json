@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "moderncameracollision",
+  "version-semver": "0.1.0",
+  "description": "Third-person camera collision that sees around small things, for Skyrim SE 1.5.97",
+  "supports": "windows & x64",
+  "builtin-baseline": "d1857c260f2072ccdf50bba1bc36d0196e4283df",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    "directxmath",
+    "directxtk",
+    "fmt",
+    "nlohmann-json",
+    "rapidcsv",
+    "simpleini",
+    "spdlog",
+    "toml11",
+    "xbyak",
+    "minhook"
+  ]
+}

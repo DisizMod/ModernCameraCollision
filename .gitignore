@@ -1,0 +1,9 @@
+build/
+out/
+.vs/
+.cache/
+*.user
+CMakeUserPresets.json
+vcpkg_installed/
+*.log
+__pycache__/
