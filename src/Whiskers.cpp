@@ -82,8 +82,8 @@ namespace mcc::whiskers
 			if (const auto known = g_verdicts.find(id); known != g_verdicts.end()) {
 				stops = known->second;
 			} else {
-				const RE::NiPoint3 normal = Normalized({ X(output.normal), Y(output.normal), Z(output.normal) });
-				stops = collision::Judge(a_world, output.rootCollidable, ref, at, normal, a_scale, true, a_settings).stops;
+				// Judged from the whisker's own far end: where the camera would be at its angle.
+				stops = collision::Judge(a_world, output.rootCollidable, ref, at, a_to, a_scale, true, a_settings).stops;
 				g_verdicts[id] = stops;
 			}
 			if (a_settings.logVerbose) {

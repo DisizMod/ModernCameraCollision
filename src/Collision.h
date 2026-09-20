@@ -36,8 +36,10 @@ namespace mcc::collision
 		int  cover = -1;     // percent of the disc, -1 when not measured
 	};
 
+	// a_eye is where the camera would be: its wanted position for its own
+	// hits, a whisker's far end for that whisker's.
 	Verdict Judge(const RE::hkpWorld* a_world, const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref,
-		const RE::NiPoint3& a_at, const RE::NiPoint3& a_normal, float a_scale, bool a_forWhisker,
+		const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, float a_scale, bool a_forWhisker,
 		const settings::Values& a_settings);
 
 	// --- this update's cast, for the whiskers and the motion ------------------

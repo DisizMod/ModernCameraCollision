@@ -229,12 +229,11 @@ namespace mcc::collision
 			std::sort(a_out.begin(), a_out.end(), [](const Hit& a, const Hit& b) { return a.fraction < b.fraction; });
 		}
 
-		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, RE::TESObjectREFR* a_ref, float a_scale,
+		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref, float a_scale,
 			bool a_forWhisker, DiscView& a_disc)
 		{
-			// The disc is the player, seen from the wanted camera position.
-			(void)a_at;
-			const RE::NiPoint3 eye = g_castTo;
+			// The disc is the player, seen from where the camera would be.
+			const RE::NiPoint3 eye = a_eye;
 			const RE::NiPoint3 centre = g_castFrom;
 			const RE::NiPoint3 axis = Normalized(centre - eye);
 			RE::NiPoint3       up{ 0.0f, 0.0f, 1.0f };
@@ -334,7 +333,8 @@ namespace mcc::collision
 				const auto  normal = Normalized({ X(a_point.contact.separatingNormal), Y(a_point.contact.separatingNormal),
 					 Z(a_point.contact.separatingNormal) });
 
-				const Verdict verdict = Judge(world, root, ref, at, normal, scale, false, g_settings);
+				(void)normal;
+				const Verdict verdict = Judge(world, root, ref, at, g_castTo, scale, false, g_settings);
 				const bool    ownBody = root && root->GetCollisionLayer() == RE::COL_LAYER::kCharController;
 				const bool    drop = !verdict.stops && !ownBody;
 
@@ -469,10 +469,9 @@ namespace mcc::collision
 	}
 
 	Verdict Judge(const RE::hkpWorld* a_world, const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref,
-		const RE::NiPoint3& a_at, const RE::NiPoint3& a_normal, float a_scale, bool a_forWhisker,
+		const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, float a_scale, bool a_forWhisker,
 		const settings::Values& a_settings)
 	{
-		(void)a_normal;
 		Verdict verdict;
 		if (!a_root) {
 			return verdict;
@@ -495,7 +494,7 @@ namespace mcc::collision
 		}
 
 		DiscView disc;
-		verdict.cover = DiscCover(a_world, a_at, a_ref, a_scale, a_forWhisker, disc);
+		verdict.cover = DiscCover(a_world, a_eye, a_ref, a_scale, a_forWhisker, disc);
 		const bool tooSmallOnTheDisc = Decide(a_ref, verdict.cover);
 		verdict.isSmall = fade::Fadeable(a_ref, a_at, a_settings);
 		verdict.stops = !tooSmallOnTheDisc && !verdict.isSmall;
