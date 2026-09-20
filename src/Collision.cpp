@@ -158,13 +158,15 @@ namespace mcc::collision
 
 		// --- the disc -----------------------------------------------------------------
 		//
-		// How much of the player the camera could see past the occluder, in
-		// percent of the samples: the centre and rings of eight points on a
-		// disc about the pivot -- the player's extent -- facing the wanted
-		// camera position, out to the disc radius. Each sample is reached by
-		// a ray from the wanted camera position; the sample is blocked when
-		// the occluder is on that line before the player, seen when the line
-		// reaches the player with nothing solid on it.
+		// How much of the view about a hit the occluder takes, in percent of
+		// the samples: the centre and rings of eight points on a disc through
+		// the hit point, facing the eye -- where the camera would be -- out
+		// to the disc radius, a size in world units, so a pole covers its
+		// stripe wherever it stands. Each sample is reached by a ray from the
+		// eye through it and a set distance past it; the sample is taken when
+		// the occluder is on that line, clear when the line passes the disc
+		// without it (the wall behind a beam), unknown when something solid
+		// stands in the way before the disc.
 
 		float DiscRadiusNow()
 		{
@@ -229,12 +231,13 @@ namespace mcc::collision
 			std::sort(a_out.begin(), a_out.end(), [](const Hit& a, const Hit& b) { return a.fraction < b.fraction; });
 		}
 
-		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref, float a_scale,
-			bool a_forWhisker, DiscView& a_disc)
+		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref,
+			float a_scale, bool a_forWhisker, DiscView& a_disc)
 		{
-			// The disc is the player, seen from where the camera would be.
+			// The disc sits on the occluder at the hit, facing where the
+			// camera would be.
 			const RE::NiPoint3 eye = a_eye;
-			const RE::NiPoint3 centre = g_castFrom;
+			const RE::NiPoint3 centre = a_at;
 			const RE::NiPoint3 axis = Normalized(centre - eye);
 			RE::NiPoint3       up{ 0.0f, 0.0f, 1.0f };
 			if (std::fabs(axis.z) > 0.9f) {
@@ -259,22 +262,23 @@ namespace mcc::collision
 			a_disc.samples = n;
 
 			// Every hit along a sample's ray, nearest first, walked from the
-			// wanted camera position toward the player: the occluder on the
-			// line blocks the sample; what the camera is let through -- the
-			// player's own body, a through layer, a shape small where it was
-			// hit -- is stepped over; a solid other reference before the
-			// player is something else in the way, and the sample says
-			// nothing; the line reaching the player with nothing solid on it
-			// is a sample seen. The share is blocked over blocked plus seen;
-			// with nothing known there is no evidence the occluder is small,
-			// and it is kept.
+			// eye: the occluder on the line takes the sample; what the camera
+			// is let through -- the player's own body, a through layer, a
+			// shape small where it was hit -- is stepped over; the first solid
+			// other reference ends the walk, and where matters: beyond the
+			// disc, the occluder was not there (the wall behind a beam) and
+			// the sample is clear; before it, the sample says nothing and is
+			// left out. The share is taken over taken plus clear; with nothing
+			// known there is no evidence the occluder is small, and it is kept.
 			int              taken = 0, clear = 0;
 			std::vector<Hit> hits;
 			(void)a_world;
 			for (int i = 0; i < n; ++i) {
 				const RE::NiPoint3& sample = a_disc.point[i];
+				const RE::NiPoint3  dir = Normalized(sample - eye);
 				const RE::NiPoint3  start = eye;
-				const RE::NiPoint3  to = sample;
+				const RE::NiPoint3  to = sample + dir * g_settings.discBehind;
+				const float         planeAt = Length(sample - start) / (std::max)(Length(to - start), 1.0f);
 
 				AllHits(start, to, a_scale, hits);
 				bool                      there = false;
@@ -293,7 +297,7 @@ namespace mcc::collision
 					if (SeesThrough(hit.root, hitRef, at)) {
 						continue;
 					}
-					unknown = true;  // something else solid, between the camera and the player
+					unknown = hit.fraction < planeAt - 0.02f;  // solid, in front of the disc
 					drawn.hitFraction = hit.fraction;
 					drawn.rootCollidable = hit.root;
 					break;
@@ -494,7 +498,7 @@ namespace mcc::collision
 		}
 
 		DiscView disc;
-		verdict.cover = DiscCover(a_world, a_eye, a_ref, a_scale, a_forWhisker, disc);
+		verdict.cover = DiscCover(a_world, a_at, a_eye, a_ref, a_scale, a_forWhisker, disc);
 		const bool tooSmallOnTheDisc = Decide(a_ref, verdict.cover);
 		verdict.isSmall = fade::Fadeable(a_ref, a_at, a_settings);
 		verdict.stops = !tooSmallOnTheDisc && !verdict.isSmall;
