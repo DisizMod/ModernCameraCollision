@@ -73,11 +73,16 @@ through `d10dbab`). This is what came out, and why.
 
 ## Setup that needs tools outside this repo
 
-- **The ESP** `dist/ModernCameraCollision.esp` (not yet made): a quest with
-  the `MCC_MCM` script attached and a `PlayerAlias` alias carrying
-  `SKI_PlayerLoadGameAlias`, as MCM Helper's "Creating a Config Script"
-  page describes. Make it in the Creation Kit or xEdit; flag it ESL.
-- **The script** `dist/Source/Scripts/MCC_MCM.psc` compiles against MCM
-  Helper's SDK (`MCM_ConfigBase.psc`) and SkyUI's; the `.pex` goes to
-  `dist/Scripts/`.
+- **The ESP** `dist/ModernCameraCollision.esp`: a quest `MCC_MCMQuest`
+  (Start Game Enabled, not Run Once) with the `MCC_MCM` script attached and a
+  `PlayerAlias` alias (Specific Reference, PlayerRef) carrying
+  `SKI_PlayerLoadGameAlias`. Made in the 1.6 Creation Kit, which saved it
+  with header version 1.71; the version float after `HEDR` was set back to
+  1.70 by hand, since 1.5.97 refuses 1.71. Do that again after any resave
+  from that CK (or set it in xEdit). Not ESL-flagged.
+- **The script** `dist/Source/Scripts/MCC_MCM.psc` is compiled by
+  `docs/compile-script.ps1` with the Papyrus compiler, against MCM Helper's
+  SDK sources and the vanilla + SKSE sources; the `.pex` is in
+  `dist/Scripts/`. The Creation Kit's Add Script list shows compiled
+  scripts only, so the `.pex` has to exist before it can be attached.
 - MCM Helper and SkyUI are runtime requirements.
