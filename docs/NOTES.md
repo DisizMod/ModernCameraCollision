@@ -77,7 +77,7 @@ through `d10dbab`). This is what came out, and why.
   the `MCC_MCM` script attached and a `PlayerAlias` alias carrying
   `SKI_PlayerLoadGameAlias`, as MCM Helper's "Creating a Config Script"
   page describes. Make it in the Creation Kit or xEdit; flag it ESL.
-- **The script** `dist/Scripts/Source/MCC_MCM.psc` compiles against MCM
+- **The script** `dist/Source/Scripts/MCC_MCM.psc` compiles against MCM
   Helper's SDK (`MCM_ConfigBase.psc`) and SkyUI's; the `.pex` goes to
   `dist/Scripts/`.
 - MCM Helper and SkyUI are runtime requirements.
