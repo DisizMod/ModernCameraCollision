@@ -258,14 +258,11 @@ namespace mcc::collision
 			}
 			a_disc.samples = n;
 
-			// Every hit along a sample's ray, nearest first, walked from the
-			// wanted camera position toward the player: the occluder on the
-			// line blocks the sample; what the camera is let through -- the
-			// player's own body, a through layer, a shape small where it was
-			// hit -- is stepped over; anything else solid ends the walk, and
-			// that sample is not the occluder's: whatever hides that part of
-			// the player, it is not this. The share is what the occluder
-			// blocks over all the samples.
+			// Every hit along a sample's ray, from the wanted camera position
+			// to the player: the sample is blocked when the occluder is
+			// among them, whatever else is on the ray -- a wall in front of a
+			// door does not hide the door from the count. The share is what
+			// the occluder blocks over all the samples.
 			int              taken = 0, clear = 0;
 			std::vector<Hit> hits;
 			(void)a_world;
@@ -277,7 +274,7 @@ namespace mcc::collision
 				AllHits(start, to, a_scale, hits);
 				bool                      there = false;
 				const bool                unknown = false;
-				RE::hkpWorldRayCastOutput drawn;  // the hit the sample ended on, for drawing
+				RE::hkpWorldRayCastOutput drawn;  // the occluder's hit, or the nearest, for drawing
 				for (const auto& hit : hits) {
 					auto*      hitRef = RE::TESHavokUtilities::FindCollidableRef(*hit.root);
 					const auto hitId = hitRef ? hitRef->GetFormID() : 0u;
@@ -287,13 +284,10 @@ namespace mcc::collision
 						drawn.rootCollidable = hit.root;
 						break;
 					}
-					const RE::NiPoint3 at = start + (to - start) * hit.fraction;
-					if (SeesThrough(hit.root, hitRef, at)) {
-						continue;
+					if (!drawn.rootCollidable) {
+						drawn.hitFraction = hit.fraction;
+						drawn.rootCollidable = hit.root;
 					}
-					drawn.hitFraction = hit.fraction;  // something else solid: not this occluder's doing
-					drawn.rootCollidable = hit.root;
-					break;
 				}
 				a_disc.hit[i] = there;
 				Record(RayKind::Disc, start, to, drawn, there, a_forWhisker);
