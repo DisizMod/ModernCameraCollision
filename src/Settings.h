@@ -35,6 +35,7 @@ namespace mcc::settings
 		float discBehind = 40.0f;    // the disc's rays end this far past it
 		int   discRings = 2;         // sample rings of eight, plus the centre
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
+		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 
 		// [Whiskers]
 		bool  whiskers = true;

@@ -54,6 +54,7 @@ namespace mcc::settings
 			f("Rules", "fDiscBehind", a_values.discBehind);
 			i("Rules", "iDiscRings", a_values.discRings);
 			i("Rules", "iDropBelowPercent", a_values.dropBelowPercent);
+			f("Rules", "fPartDistance", a_values.partDistance);
 
 			b("Whiskers", "bWhiskers", a_values.whiskers);
 			b("Whiskers", "bVertical", a_values.whiskersVertical);

@@ -229,8 +229,8 @@ namespace mcc::collision
 			std::sort(a_out.begin(), a_out.end(), [](const Hit& a, const Hit& b) { return a.fraction < b.fraction; });
 		}
 
-		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref, float a_scale,
-			bool a_forWhisker, DiscView& a_disc)
+		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref,
+			float a_scale, bool a_forWhisker, DiscView& a_disc)
 		{
 			// The disc is the player, seen from where the camera would be.
 			const RE::NiPoint3 eye = a_eye;
@@ -261,9 +261,13 @@ namespace mcc::collision
 			// Every hit along a sample's ray, from the wanted camera position
 			// to the player: the sample is blocked when the occluder is
 			// among them, whatever else is on the ray -- a wall in front of a
-			// door does not hide the door from the count. The share is what
-			// the occluder blocks over all the samples.
+			// door does not hide the door from the count -- and the hit is
+			// within partDistance of the sweep's own hit: the same part of
+			// the occluder. A house is one reference; its pillar and its wall
+			// are told apart by where they were hit. The share is what the
+			// occluder blocks over all the samples.
 			int              taken = 0, clear = 0;
+			const float      partDistance = g_settings.partDistance;
 			std::vector<Hit> hits;
 			(void)a_world;
 			for (int i = 0; i < n; ++i) {
@@ -279,10 +283,13 @@ namespace mcc::collision
 					auto*      hitRef = RE::TESHavokUtilities::FindCollidableRef(*hit.root);
 					const auto hitId = hitRef ? hitRef->GetFormID() : 0u;
 					if (hitId == id) {
-						there = true;
-						drawn.hitFraction = hit.fraction;
-						drawn.rootCollidable = hit.root;
-						break;
+						const RE::NiPoint3 at = start + (to - start) * hit.fraction;
+						if (Length(at - a_at) <= partDistance) {
+							there = true;
+							drawn.hitFraction = hit.fraction;
+							drawn.rootCollidable = hit.root;
+							break;
+						}
 					}
 					if (!drawn.rootCollidable) {
 						drawn.hitFraction = hit.fraction;
@@ -485,7 +492,7 @@ namespace mcc::collision
 		}
 
 		DiscView disc;
-		verdict.cover = DiscCover(a_world, a_eye, a_ref, a_scale, a_forWhisker, disc);
+		verdict.cover = DiscCover(a_world, a_at, a_eye, a_ref, a_scale, a_forWhisker, disc);
 		const bool tooSmallOnTheDisc = Decide(a_ref, verdict.cover);
 		verdict.isSmall = fade::Fadeable(a_ref, a_at, a_settings);
 		verdict.stops = !tooSmallOnTheDisc && !verdict.isSmall;
