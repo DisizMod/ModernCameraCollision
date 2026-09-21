@@ -1,6 +1,8 @@
 # Modern Camera Collision
 
-An SKSE plugin for Skyrim SE 1.5.97 and AE (1.6.x, 1.7.x); not VR. The third-person camera stops at walls
+An SKSE plugin for Skyrim SE 1.5.97 and AE (1.6.x, 1.7.x); not VR. Works
+under SmoothCam: its sweeps get the same rules and fade; the motion and the
+prediction rays are left to it. The third-person camera stops at walls
 and floors, sees around beams, posts, pots and campfires, eases its way in
 and out, and fades what it is let through. Configured through MCM Helper.
 

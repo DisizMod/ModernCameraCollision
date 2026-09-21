@@ -17,6 +17,12 @@ namespace mcc::collision
 {
 	[[nodiscard]] bool Install();
 
+	// Another mod places the camera itself (SmoothCam): the rules, the fade
+	// and the drawing keep working on its sweeps, but the motion and the
+	// prediction rays stand down, since it has its own and the last writer
+	// would win.
+	void StandDown(bool a_standDown);
+
 	// --- the verdict ----------------------------------------------------------
 	//
 	// Whether a hit stops the camera. One rule for the camera's own hits
