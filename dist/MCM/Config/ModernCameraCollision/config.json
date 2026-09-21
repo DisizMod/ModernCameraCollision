@@ -26,6 +26,320 @@
     }
   ],
   "pages": [
+    
+    {
+      "pageDisplayName": "Collision Rays",
+      "content": [
+        
+        {
+          "type": "header",
+          "text": "Collision Bumper"
+        },
+        {
+          "type": "header",
+          "text": "Side Lines"
+        },
+        {
+          "type": "slider",
+          "text": "Bumper width",
+          "id": "fBodyHalfWidth:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 5,
+            "max": 120,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Side line: reach past the bumper's edge",
+          "id": "fSideReach:Rules",
+          "help": "Horizontal lines of samples across the camera's line, reaching this far past the bumper's edge on both sides: what is beside the player. A pole covers the bumper and not the sides; a wall covers both.",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 400,
+            "step": 10,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Bumper height above the pivot",
+          "id": "fBodyAbove:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 150,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Side line: samples per side",
+          "id": "iSidePoints:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 0,
+            "max": 6,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Bumper height below the pivot",
+          "id": "fBodyBelow:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 200,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Side line: rows",
+          "id": "iSideRows:Rules",
+          "help": "How many side lines, at heights spread over the bumper the way the grid's rows are. One is a single line at the bumper's middle height.",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 1,
+            "max": 9,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Bumper grid rays columns",
+          "id": "iBodyColumns:Rules",
+          "help": "The grid inside the bumper, and its edge on the same pattern: this many points round each cap, and a point on each side at each row's height.",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 1,
+            "max": 7,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "empty"
+        },
+        {
+          "type": "slider",
+          "text": "Bumper grid rays rows",
+          "id": "iBodyRows:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 1,
+            "max": 9,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "empty"
+        },
+        {
+          "type": "header",
+          "text": "High Angle"
+        },
+        {
+          "type": "header",
+          "text": "Collision targets"
+        },
+        {
+          "type": "slider",
+          "text": "High angle: angle threshold",
+          "id": "fHighAngle:Rules",
+          "help": "With the camera more than this many degrees above or below level, the bumper becomes a level disc at the middle: points round it, a few inside, and the side points as a cross along and across the camera's direction.",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 10,
+            "max": 85,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Minimum Bound Radius",
+          "id": "fMinBound:Rules",
+          "help": "The trishape under the hit is small when its bounding sphere's radius is under this. Small is faded and never collides. A pot is about 20, a campfire 60-100, a kit wall or floor 190-220.",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 5,
+            "max": 600,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "High angle: the disc's radius",
+          "id": "fHighScale:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.2,
+            "max": 1.0,
+            "step": 0.05,
+            "formatString": "{2}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Minimum ray threshold percentage",
+          "id": "iDropBelowPercent:Rules",
+          "help": "Percent of the disc's samples. Once dropped, an occluder needs this plus 12 points to be kept again; once kept, 25 under it to be dropped.",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "formatString": "{0}%"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "High angle: points round the disc",
+          "id": "iHighPoints:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 4,
+            "max": 16,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Same part: maximum point distance distance",
+          "id": "fPartDistance:Rules",
+          "help": "A house is one object; its pillar and its wall are told apart by where the rays hit it. Only hits within this distance of the point the camera is about to hit count for that object.",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 10,
+            "max": 400,
+            "step": 10,
+            "formatString": "{0}"
+          }
+        }
+      ]
+    },
+    {
+      "pageDisplayName": "Prediction rays",
+      "content": [
+        {
+          "type": "header",
+          "text": "Seeing walls coming"
+        },
+        {
+          "type": "header",
+          "text": "Swing (experimental)"
+        },
+        {
+          "type": "toggle",
+          "text": "Prediction rays",
+          "id": "bPredictionRays:Prediction",
+          "help": "Rays from the player to where the camera would be a little to either side, above and below. A blocked one says a wall is coming before the camera meets it.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Swing away from a blocked side",
+          "id": "bSwing:Prediction",
+          "help": "Turns the camera's free rotation away from the side a prediction ray finds blocked. Off by default: it does not yet consider where the player is heading.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Vertical prediction rays",
+          "id": "bVertical:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Yaw swing (deg/s at fully blocked)",
+          "id": "fSwingYawDegPerSec:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 180,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Diagonal prediction rays",
+          "id": "bDiagonal:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Pitch swing (deg/s at fully blocked)",
+          "id": "fSwingPitchDegPerSec:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 180,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Transition near collision",
+          "id": "bShorten:Prediction",
+          "help": "The prediction rays nearest the camera's line cap the distance, so the camera is already coming in as a wall approaches from behind.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Swing yaw the other way",
+          "id": "bSwingYawInverted:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "empty"
+        },
+        {
+          "type": "toggle",
+          "text": "Swing pitch the other way",
+          "id": "bSwingPitchInverted:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "empty"
+        },
+        {
+          "type": "toggle",
+          "text": "The player wins: no swing while turning the camera",
+          "id": "bIntentWins:Prediction",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        }
+      ]
+    },
     {
       "pageDisplayName": "Motion",
       "content": [
@@ -35,7 +349,7 @@
         },
         {
           "type": "slider",
-          "text": "Hold after the way clears (s)",
+          "text": "Hold position (s)",
           "id": "fHoldSecs:Motion",
           "help": "The pulled-in distance is kept this long after the obstacle is gone, so passing a row of posts does not bounce the camera in and out.",
           "valueOptions": {
@@ -75,323 +389,29 @@
       ]
     },
     {
-      "pageDisplayName": "Rules",
-      "content": [
-        {
-          "type": "header",
-          "text": "What stops the camera"
-        },
-        {
-          "type": "text",
-          "text": "An occluder stops the camera when it blocks enough of the camera's view of the player AND the shape under the hit is not small."
-        },
-        {
-          "type": "slider",
-          "text": "Small: bound radius under",
-          "id": "fMinBound:Rules",
-          "help": "The trishape under the hit is small when its bounding sphere's radius is under this. Small is faded and never collides. A pot is about 20, a campfire 60-100, a kit wall or floor 190-220.",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 5,
-            "max": 600,
-            "step": 5,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "header",
-          "text": "The body, as the camera sees it"
-        },
-        {
-          "type": "text",
-          "text": "The bumper: a stadium of the set width and heights standing upright about the pivot, turned to face the camera about the vertical only. Samples on its edge, a few inside, and a horizontal side line. From a high angle it becomes a level disc at the middle, with points round it, a few inside, and a cross of side points."
-        },
-        {
-          "type": "slider",
-          "text": "Half-width (shoulders)",
-          "id": "fBodyHalfWidth:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 5,
-            "max": 120,
-            "step": 1,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Above the pivot (head)",
-          "id": "fBodyAbove:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 0,
-            "max": 150,
-            "step": 5,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Below the pivot (legs)",
-          "id": "fBodyBelow:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 0,
-            "max": 200,
-            "step": 5,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Grid columns",
-          "id": "iBodyColumns:Rules",
-          "help": "The grid inside the bumper, and its edge on the same pattern: this many points round each cap, and a point on each side at each row's height.",
-          "valueOptions": {
-            "sourceType": "ModSettingInt",
-            "min": 1,
-            "max": 7,
-            "step": 1,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Grid rows",
-          "id": "iBodyRows:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingInt",
-            "min": 1,
-            "max": 9,
-            "step": 1,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Side line: reach past the body's edge",
-          "id": "fSideReach:Rules",
-          "help": "Horizontal lines of samples across the camera's line, reaching this far past the bumper's edge on both sides: what is beside the player. A pole covers the bumper and not the sides; a wall covers both.",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 0,
-            "max": 400,
-            "step": 10,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Side line: samples per side",
-          "id": "iSidePoints:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingInt",
-            "min": 0,
-            "max": 6,
-            "step": 1,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Side line: rows",
-          "id": "iSideRows:Rules",
-          "help": "How many side lines, at heights spread over the bumper the way the grid's rows are. One is a single line at the bumper's middle height.",
-          "valueOptions": {
-            "sourceType": "ModSettingInt",
-            "min": 1,
-            "max": 9,
-            "step": 1,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "High angle: from this pitch, a level disc instead",
-          "id": "fHighAngle:Rules",
-          "help": "With the camera more than this many degrees above or below level, the bumper becomes a level disc at the middle: points round it, a few inside, and the side points as a cross along and across the camera's direction.",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 10,
-            "max": 85,
-            "step": 5,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "High angle: the disc's radius, as a share of the half-width",
-          "id": "fHighScale:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 0.2,
-            "max": 1.0,
-            "step": 0.05,
-            "formatString": "{2}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "High angle: points round the disc",
-          "id": "iHighPoints:Rules",
-          "valueOptions": {
-            "sourceType": "ModSettingInt",
-            "min": 4,
-            "max": 16,
-            "step": 1,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Dropped when the occluder takes less than",
-          "id": "iDropBelowPercent:Rules",
-          "help": "Percent of the disc's samples. Once dropped, an occluder needs this plus 12 points to be kept again; once kept, 25 under it to be dropped.",
-          "valueOptions": {
-            "sourceType": "ModSettingInt",
-            "min": 0,
-            "max": 100,
-            "step": 5,
-            "formatString": "{0}%"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Same part: hits count within this distance of the sweep's hit",
-          "id": "fPartDistance:Rules",
-          "help": "A house is one object; its pillar and its wall are told apart by where the rays hit it. Only hits within this distance of the point the camera is about to hit count for that object.",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 10,
-            "max": 400,
-            "step": 10,
-            "formatString": "{0}"
-          }
-        }
-      ]
-    },
-    {
-      "pageDisplayName": "Prediction rays",
-      "content": [
-        {
-          "type": "header",
-          "text": "Seeing walls coming"
-        },
-        {
-          "type": "toggle",
-          "text": "Prediction rays",
-          "id": "bPredictionRays:Prediction",
-          "help": "Rays from the player to where the camera would be a little to either side, above and below. A blocked one says a wall is coming before the camera meets it.",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "toggle",
-          "text": "Vertical prediction rays",
-          "id": "bVertical:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "toggle",
-          "text": "Diagonal prediction rays",
-          "id": "bDiagonal:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "toggle",
-          "text": "Shorten the distance to what the near prediction rays measure free",
-          "id": "bShorten:Prediction",
-          "help": "The prediction rays nearest the camera's line cap the distance, so the camera is already coming in as a wall approaches from behind.",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "header",
-          "text": "Swing (experimental)"
-        },
-        {
-          "type": "toggle",
-          "text": "Swing away from a blocked side",
-          "id": "bSwing:Prediction",
-          "help": "Turns the camera's free rotation away from the side a prediction ray finds blocked. Off by default: it does not yet consider where the player is heading.",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Yaw swing (deg/s at fully blocked)",
-          "id": "fSwingYawDegPerSec:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 0,
-            "max": 180,
-            "step": 5,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "slider",
-          "text": "Pitch swing (deg/s at fully blocked)",
-          "id": "fSwingPitchDegPerSec:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingFloat",
-            "min": 0,
-            "max": 180,
-            "step": 5,
-            "formatString": "{0}"
-          }
-        },
-        {
-          "type": "toggle",
-          "text": "Swing yaw the other way",
-          "id": "bSwingYawInverted:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "toggle",
-          "text": "Swing pitch the other way",
-          "id": "bSwingPitchInverted:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "toggle",
-          "text": "The player wins: no swing while turning the camera",
-          "id": "bIntentWins:Prediction",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        }
-      ]
-    },
-    {
       "pageDisplayName": "Fade",
       "content": [
         {
           "type": "header",
-          "text": "What the camera is let through"
+          "text": "Fade on camera collision"
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "toggle",
-          "text": "Fade it",
+          "text": "Enabled",
           "id": "bFade:Fade",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "slider",
-          "text": "Faded to",
+          "text": "Alpha",
           "id": "fAlpha:Fade",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -402,8 +422,11 @@
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "slider",
-          "text": "Over (s)",
+          "text": "Fade speed (s)",
           "id": "fSecs:Fade",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -414,6 +437,9 @@
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "toggle",
           "text": "Fade shapes that carry their own alpha",
           "id": "bFadeOwnAlpha:Fade",
@@ -421,6 +447,9 @@
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "toggle",
@@ -440,13 +469,13 @@
           "text": "A rule per collision layer"
         },
         {
-          "type": "text",
-          "text": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size."
+          "type": "empty"
         },
         {
           "type": "enum",
           "text": "L_STATIC",
           "id": "iL_STATIC:Layers",
+          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
@@ -462,12 +491,15 @@
               "Fade"
             ]
           }
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "enum",
           "text": "L_ANIMSTATIC",
           "id": "iL_ANIMSTATIC:Layers",
-          "help": "Doors and gates are here, with levers and the like.",
+          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
@@ -483,11 +515,15 @@
               "Fade"
             ]
           }
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "enum",
           "text": "L_TREES",
           "id": "iL_TREES:Layers",
+          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size. The game sometime tag some trees as static.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
@@ -503,11 +539,15 @@
               "Fade"
             ]
           }
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "enum",
           "text": "L_TERRAIN",
           "id": "iL_TERRAIN:Layers",
+          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
@@ -525,9 +565,13 @@
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "enum",
           "text": "L_GROUND",
           "id": "iL_GROUND:Layers",
+          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
@@ -554,10 +598,23 @@
           "text": "Drawn over the game"
         },
         {
+          "type": "header",
+          "text": "Log"
+        },
+        {
           "type": "toggle",
           "text": "Draw the discs",
           "id": "bDrawDiscs:Debug",
           "help": "The bumper (or the high-angle disc) at each judgement: yellow kept, orange dropped; blue when measured for a prediction ray; a mark where each sample found the occluder.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "toggle",
+          "text": "Verbose log",
+          "id": "bLogVerbose:Debug",
+          "help": "The first ten camera updates and then one in sixty, hit by hit, in Documents/My Games/Skyrim Special Edition/SKSE/ModernCameraCollision.log.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -572,6 +629,9 @@
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "toggle",
           "text": "Draw the rays",
           "id": "bDrawRays:Debug",
@@ -581,22 +641,12 @@
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "toggle",
           "text": "Draw the faded shapes' bounds",
           "id": "bDrawBounds:Debug",
-          "valueOptions": {
-            "sourceType": "ModSettingBool"
-          }
-        },
-        {
-          "type": "header",
-          "text": "Log"
-        },
-        {
-          "type": "toggle",
-          "text": "Verbose log",
-          "id": "bLogVerbose:Debug",
-          "help": "The first ten camera updates and then one in sixty, hit by hit, in Documents/My Games/Skyrim Special Edition/SKSE/ModernCameraCollision.log.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
