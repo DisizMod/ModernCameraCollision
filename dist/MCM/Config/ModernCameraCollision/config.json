@@ -1,28 +1,27 @@
 {
   "$schema": "https://raw.githubusercontent.com/Exit-9B/MCM-Helper/main/docs/config.schema.json",
   "modName": "ModernCameraCollision",
-  "displayName": "Modern Camera Collision",
+  "displayName": "$MCC_Title",
   "minMcmVersion": 13,
   "pluginRequirements": [
     "ModernCameraCollision.esp"
   ],
   "pages": [
-    
     {
-      "pageDisplayName": "Collision Rays",
+      "pageDisplayName": "$MCC_Page_Collision_Rays",
       "content": [
         {
           "type": "header",
-          "text": "Modern Camera Collision"
+          "text": "$MCC_Collision_Rays_Header1"
         },
         {
           "type": "empty"
         },
         {
           "type": "toggle",
-          "text": "Enabled",
+          "text": "$MCC_bEnabled",
           "id": "bEnabled:General",
-          "help": "The third-person camera sees around small things, eases in and out, and fades what it is let through.",
+          "help": "$MCC_bEnabled_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -32,15 +31,15 @@
         },
         {
           "type": "header",
-          "text": "Collision Bumper"
+          "text": "$MCC_Collision_Rays_Header2"
         },
         {
           "type": "header",
-          "text": "Side Lines"
+          "text": "$MCC_Collision_Rays_Header3"
         },
         {
           "type": "slider",
-          "text": "Bumper width",
+          "text": "$MCC_fBodyHalfWidth",
           "id": "fBodyHalfWidth:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -52,9 +51,9 @@
         },
         {
           "type": "slider",
-          "text": "Side line: reach past the bumper's edge",
+          "text": "$MCC_fSideReach",
           "id": "fSideReach:Rules",
-          "help": "Horizontal lines of samples across the camera's line, reaching this far past the bumper's edge on both sides: what is beside the player. A pole covers the bumper and not the sides; a wall covers both.",
+          "help": "$MCC_fSideReach_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0,
@@ -65,7 +64,7 @@
         },
         {
           "type": "slider",
-          "text": "Bumper height above the pivot",
+          "text": "$MCC_fBodyAbove",
           "id": "fBodyAbove:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -77,7 +76,7 @@
         },
         {
           "type": "slider",
-          "text": "Side line: samples per side",
+          "text": "$MCC_iSidePoints",
           "id": "iSidePoints:Rules",
           "valueOptions": {
             "sourceType": "ModSettingInt",
@@ -89,7 +88,7 @@
         },
         {
           "type": "slider",
-          "text": "Bumper height below the pivot",
+          "text": "$MCC_fBodyBelow",
           "id": "fBodyBelow:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -101,9 +100,9 @@
         },
         {
           "type": "slider",
-          "text": "Side line: rows",
+          "text": "$MCC_iSideRows",
           "id": "iSideRows:Rules",
-          "help": "How many side lines, at heights spread over the bumper the way the grid's rows are. One is a single line at the bumper's middle height.",
+          "help": "$MCC_iSideRows_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 1,
@@ -114,9 +113,9 @@
         },
         {
           "type": "slider",
-          "text": "Bumper grid rays columns",
+          "text": "$MCC_iBodyColumns",
           "id": "iBodyColumns:Rules",
-          "help": "The grid inside the bumper, and its edge on the same pattern: this many points round each cap, and a point on each side at each row's height.",
+          "help": "$MCC_iBodyColumns_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 1,
@@ -130,7 +129,7 @@
         },
         {
           "type": "slider",
-          "text": "Bumper grid rays rows",
+          "text": "$MCC_iBodyRows",
           "id": "iBodyRows:Rules",
           "valueOptions": {
             "sourceType": "ModSettingInt",
@@ -145,17 +144,17 @@
         },
         {
           "type": "header",
-          "text": "High Angle"
+          "text": "$MCC_Collision_Rays_Header4"
         },
         {
           "type": "header",
-          "text": "Collision targets"
+          "text": "$MCC_Collision_Rays_Header5"
         },
         {
           "type": "slider",
-          "text": "High angle: angle threshold",
+          "text": "$MCC_fHighAngle",
           "id": "fHighAngle:Rules",
-          "help": "With the camera more than this many degrees above or below level, the bumper becomes a level disc at the middle: points round it, a few inside, and the side points as a cross along and across the camera's direction.",
+          "help": "$MCC_fHighAngle_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 10,
@@ -166,9 +165,9 @@
         },
         {
           "type": "slider",
-          "text": "Minimum Bound Radius",
+          "text": "$MCC_fMinBound",
           "id": "fMinBound:Rules",
-          "help": "The trishape under the hit is small when its bounding sphere's radius is under this. Small is faded and never collides. A pot is about 20, a campfire 60-100, a kit wall or floor 190-220.",
+          "help": "$MCC_fMinBound_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 5,
@@ -179,7 +178,7 @@
         },
         {
           "type": "slider",
-          "text": "High angle: the disc's radius",
+          "text": "$MCC_fHighScale",
           "id": "fHighScale:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -191,9 +190,9 @@
         },
         {
           "type": "slider",
-          "text": "Minimum ray threshold percentage",
+          "text": "$MCC_iDropBelowPercent",
           "id": "iDropBelowPercent:Rules",
-          "help": "Percent of the disc's samples. Once dropped, an occluder needs this plus 12 points to be kept again; once kept, 25 under it to be dropped.",
+          "help": "$MCC_iDropBelowPercent_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 0,
@@ -204,7 +203,7 @@
         },
         {
           "type": "slider",
-          "text": "High angle: points round the disc",
+          "text": "$MCC_iHighPoints",
           "id": "iHighPoints:Rules",
           "valueOptions": {
             "sourceType": "ModSettingInt",
@@ -216,9 +215,9 @@
         },
         {
           "type": "slider",
-          "text": "Same part: maximum point distance distance",
+          "text": "$MCC_fPartDistance",
           "id": "fPartDistance:Rules",
-          "help": "A house is one object; its pillar and its wall are told apart by where the rays hit it. Only hits within this distance of the point the camera is about to hit count for that object.",
+          "help": "$MCC_fPartDistance_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 10,
@@ -230,37 +229,37 @@
       ]
     },
     {
-      "pageDisplayName": "Prediction rays",
+      "pageDisplayName": "$MCC_Page_Prediction_rays",
       "content": [
         {
           "type": "header",
-          "text": "Seeing walls coming"
+          "text": "$MCC_Prediction_rays_Header1"
         },
         {
           "type": "header",
-          "text": "Swing (experimental)"
+          "text": "$MCC_Prediction_rays_Header2"
         },
         {
           "type": "toggle",
-          "text": "Prediction rays",
+          "text": "$MCC_bPredictionRays",
           "id": "bPredictionRays:Prediction",
-          "help": "Rays from the player to where the camera would be a little to either side, above and below. A blocked one says a wall is coming before the camera meets it.",
+          "help": "$MCC_bPredictionRays_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Swing away from a blocked side",
+          "text": "$MCC_bSwing",
           "id": "bSwing:Prediction",
-          "help": "Turns the camera's free rotation away from the side a prediction ray finds blocked. Off by default: it does not yet consider where the player is heading.",
+          "help": "$MCC_bSwing_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Vertical prediction rays",
+          "text": "$MCC_bVertical",
           "id": "bVertical:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -268,7 +267,7 @@
         },
         {
           "type": "slider",
-          "text": "Yaw swing (deg/s at fully blocked)",
+          "text": "$MCC_fSwingYawDegPerSec",
           "id": "fSwingYawDegPerSec:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -280,7 +279,7 @@
         },
         {
           "type": "toggle",
-          "text": "Diagonal prediction rays",
+          "text": "$MCC_bDiagonal",
           "id": "bDiagonal:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -288,7 +287,7 @@
         },
         {
           "type": "slider",
-          "text": "Pitch swing (deg/s at fully blocked)",
+          "text": "$MCC_fSwingPitchDegPerSec",
           "id": "fSwingPitchDegPerSec:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -300,16 +299,16 @@
         },
         {
           "type": "toggle",
-          "text": "Transition near collision",
+          "text": "$MCC_bShorten",
           "id": "bShorten:Prediction",
-          "help": "The prediction rays nearest the camera's line cap the distance, so the camera is already coming in as a wall approaches from behind.",
+          "help": "$MCC_bShorten_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Swing yaw the other way",
+          "text": "$MCC_bSwingYawInverted",
           "id": "bSwingYawInverted:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -320,7 +319,7 @@
         },
         {
           "type": "toggle",
-          "text": "Swing pitch the other way",
+          "text": "$MCC_bSwingPitchInverted",
           "id": "bSwingPitchInverted:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -331,7 +330,7 @@
         },
         {
           "type": "toggle",
-          "text": "The player wins: no swing while turning the camera",
+          "text": "$MCC_bIntentWins",
           "id": "bIntentWins:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -340,20 +339,20 @@
       ]
     },
     {
-      "pageDisplayName": "Motion",
+      "pageDisplayName": "$MCC_Page_Motion",
       "content": [
         {
           "type": "header",
-          "text": "Transition to collision target."
+          "text": "$MCC_Motion_Header1"
         },
         {
           "type": "empty"
         },
         {
           "type": "slider",
-          "text": "Hold position (s)",
+          "text": "$MCC_fHoldSecs",
           "id": "fHoldSecs:Motion",
-          "help": "The pulled-in distance is kept this long after the obstacle is gone, so passing a row of posts does not bounce the camera in and out.",
+          "help": "$MCC_fHoldSecs_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0.0,
@@ -367,9 +366,9 @@
         },
         {
           "type": "slider",
-          "text": "Ease in (s)",
+          "text": "$MCC_fEaseInSecs",
           "id": "fEaseInSecs:Motion",
-          "help": "Time constant of the way in. Keep it small: the engine parks the camera a few units short of a surface, and while the way in is still easing the camera is inside it.",
+          "help": "$MCC_fEaseInSecs_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0.005,
@@ -383,9 +382,9 @@
         },
         {
           "type": "slider",
-          "text": "Ease out (s)",
+          "text": "$MCC_fEaseOutSecs",
           "id": "fEaseOutSecs:Motion",
-          "help": "Time constant of the way back out, after the hold.",
+          "help": "$MCC_fEaseOutSecs_Help",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0.01,
@@ -397,18 +396,18 @@
       ]
     },
     {
-      "pageDisplayName": "Fade",
+      "pageDisplayName": "$MCC_Page_Fade",
       "content": [
         {
           "type": "header",
-          "text": "Fade on camera collision"
+          "text": "$MCC_Fade_Header1"
         },
         {
           "type": "empty"
         },
         {
           "type": "toggle",
-          "text": "Enabled",
+          "text": "$MCC_bFade",
           "id": "bFade:Fade",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -419,7 +418,7 @@
         },
         {
           "type": "slider",
-          "text": "Alpha",
+          "text": "$MCC_fAlpha",
           "id": "fAlpha:Fade",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -434,7 +433,7 @@
         },
         {
           "type": "slider",
-          "text": "Fade speed (s)",
+          "text": "$MCC_fSecs",
           "id": "fSecs:Fade",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -449,9 +448,9 @@
         },
         {
           "type": "toggle",
-          "text": "Fade shapes that carry their own alpha",
+          "text": "$MCC_bFadeOwnAlpha",
           "id": "bFadeOwnAlpha:Fade",
-          "help": "A window's frame, leaves, a grate. Their shadow pass multiplies the texture's alpha by the fade, so their shadow goes with it -- a window's light shaft most visibly.",
+          "help": "$MCC_bFadeOwnAlpha_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -461,7 +460,7 @@
         },
         {
           "type": "toggle",
-          "text": "Faded shapes keep casting shadows",
+          "text": "$MCC_bKeepShadows",
           "id": "bKeepShadows:Fade",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -470,33 +469,33 @@
       ]
     },
     {
-      "pageDisplayName": "Layers",
+      "pageDisplayName": "$MCC_Page_Layers",
       "content": [
         {
           "type": "header",
-          "text": "A rule per collision layer"
+          "text": "$MCC_Layers_Header1"
         },
         {
           "type": "empty"
         },
         {
           "type": "enum",
-          "text": "L_STATIC",
+          "text": "$MCC_iL_STATIC",
           "id": "iL_STATIC:Layers",
-          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
+          "help": "$MCC_iL_STATIC_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ],
             "shortNames": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ]
           }
         },
@@ -505,22 +504,22 @@
         },
         {
           "type": "enum",
-          "text": "L_ANIMSTATIC",
+          "text": "$MCC_iL_ANIMSTATIC",
           "id": "iL_ANIMSTATIC:Layers",
-          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
+          "help": "$MCC_iL_ANIMSTATIC_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ],
             "shortNames": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ]
           }
         },
@@ -529,22 +528,22 @@
         },
         {
           "type": "enum",
-          "text": "L_TREES",
+          "text": "$MCC_iL_TREES",
           "id": "iL_TREES:Layers",
-          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size. The game sometime tag some trees as static.",
+          "help": "$MCC_iL_TREES_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ],
             "shortNames": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ]
           }
         },
@@ -553,22 +552,22 @@
         },
         {
           "type": "enum",
-          "text": "L_TERRAIN",
+          "text": "$MCC_iL_TERRAIN",
           "id": "iL_TERRAIN:Layers",
-          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
+          "help": "$MCC_iL_TERRAIN_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ],
             "shortNames": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ]
           }
         },
@@ -577,61 +576,61 @@
         },
         {
           "type": "enum",
-          "text": "L_GROUND",
+          "text": "$MCC_iL_GROUND",
           "id": "iL_GROUND:Layers",
-          "help": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size.",
+          "help": "$MCC_iL_GROUND_Help",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "options": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ],
             "shortNames": [
-              "Measure",
-              "Stop",
-              "Through",
-              "Fade"
+              "$MCC_Rule_Measure",
+              "$MCC_Rule_Stop",
+              "$MCC_Rule_Through",
+              "$MCC_Rule_Fade"
             ]
           }
         }
       ]
     },
     {
-      "pageDisplayName": "Debug",
+      "pageDisplayName": "$MCC_Page_Debug",
       "content": [
         {
           "type": "header",
-          "text": "Drawn over the game"
+          "text": "$MCC_Debug_Header1"
         },
         {
           "type": "header",
-          "text": "Log"
+          "text": "$MCC_Debug_Header2"
         },
         {
           "type": "toggle",
-          "text": "Draw the discs",
+          "text": "$MCC_bDrawDiscs",
           "id": "bDrawDiscs:Debug",
-          "help": "The bumper (or the high-angle disc) at each judgement: yellow kept, orange dropped; blue when measured for a prediction ray; a mark where each sample found the occluder.",
+          "help": "$MCC_bDrawDiscs_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Verbose log",
+          "text": "$MCC_bLogVerbose",
           "id": "bLogVerbose:Debug",
-          "help": "The first ten camera updates and then one in sixty, hit by hit, in Documents/My Games/Skyrim Special Edition/SKSE/ModernCameraCollision.log.",
+          "help": "$MCC_bLogVerbose_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Draw the prediction rays",
+          "text": "$MCC_bDrawPredictionRays",
           "id": "bDrawPredictionRays:Debug",
-          "help": "The prediction rays themselves -- red where one found something the camera would stop at, green where clear -- and everything they measured: their bumpers and sample rays, in blue. Off, only the camera's own check is drawn. This does not switch the prediction rays off; that is on the Prediction rays page.",
+          "help": "$MCC_bDrawPredictionRays_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -641,9 +640,9 @@
         },
         {
           "type": "toggle",
-          "text": "Draw the rays",
+          "text": "$MCC_bDrawRays",
           "id": "bDrawRays:Debug",
-          "help": "The engine's own sweep in white, ending where the camera was put, and every disc sample's ray from the player.",
+          "help": "$MCC_bDrawRays_Help",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -653,7 +652,7 @@
         },
         {
           "type": "toggle",
-          "text": "Draw the faded shapes' bounds",
+          "text": "$MCC_bDrawBounds",
           "id": "bDrawBounds:Debug",
           "valueOptions": {
             "sourceType": "ModSettingBool"
