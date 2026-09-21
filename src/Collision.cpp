@@ -112,35 +112,45 @@ namespace mcc::collision
 
 		// --- the decision's memory ------------------------------------------------------
 		//
-		// The last decision per reference, so a cover wobbling about the
-		// threshold does not flip the camera between two distances: once
-		// dropped, an occluder needs the threshold plus twelve points to be
-		// kept again; once kept, twenty-five under it to be dropped.
-		// Forgotten half a second after it was last hit.
+		// The last decision per reference and place -- a hit within the
+		// same-part distance of where it was made -- so a cover wobbling
+		// about the threshold does not flip the camera between two
+		// distances: once dropped, an occluder needs the threshold plus
+		// twelve points to be kept again; once kept, twenty-five under it to
+		// be dropped. The place matters: a house is one reference, and its
+		// wall being kept says nothing about its post. Forgotten half a
+		// second after it was last hit.
 		constexpr float kDecisionSecs = 0.5f;
 
 		struct Decision
 		{
+			RE::NiPoint3                          where;
 			bool                                  dropped;
 			std::chrono::steady_clock::time_point at;
 		};
-		std::unordered_map<std::uint32_t, Decision> g_decisions;
+		std::unordered_map<std::uint32_t, std::vector<Decision>> g_decisions;
 
-		bool Decide(RE::TESObjectREFR* a_ref, int a_coverPercent)
+		bool Decide(RE::TESObjectREFR* a_ref, const RE::NiPoint3& a_where, int a_coverPercent)
 		{
 			const auto now = std::chrono::steady_clock::now();
 			const auto id = a_ref ? a_ref->GetFormID() : 0u;
-			const auto it = g_decisions.find(id);
-			const int  keep = g_settings.dropBelowPercent;
-			bool       drop;
-			if (it == g_decisions.end()) {
-				drop = a_coverPercent < keep;
-			} else if (it->second.dropped) {
-				drop = a_coverPercent < (std::min)(keep + 12, 100);
-			} else {
-				drop = a_coverPercent <= (std::max)(keep - 25, 0);
+			auto&      decisions = g_decisions[id];
+			Decision*  found = nullptr;
+			for (auto& decision : decisions) {
+				if (Length(decision.where - a_where) <= g_settings.partDistance) {
+					found = &decision;
+					break;
+				}
 			}
-			g_decisions[id] = { drop, now };
+			const int keep = g_settings.dropBelowPercent;
+			bool      drop;
+			if (!found) {
+				drop = a_coverPercent < keep;
+				decisions.push_back({ a_where, drop, now });
+			} else {
+				drop = found->dropped ? a_coverPercent < (std::min)(keep + 12, 100) : a_coverPercent <= (std::max)(keep - 25, 0);
+				*found = { a_where, drop, now };
+			}
 			return drop;
 		}
 
@@ -148,7 +158,11 @@ namespace mcc::collision
 		{
 			const auto now = std::chrono::steady_clock::now();
 			for (auto it = g_decisions.begin(); it != g_decisions.end();) {
-				if (std::chrono::duration<float>(now - it->second.at).count() > kDecisionSecs) {
+				auto& decisions = it->second;
+				std::erase_if(decisions, [&](const Decision& a_decision) {
+					return std::chrono::duration<float>(now - a_decision.at).count() > kDecisionSecs;
+				});
+				if (decisions.empty()) {
 					it = g_decisions.erase(it);
 				} else {
 					++it;
@@ -581,7 +595,7 @@ namespace mcc::collision
 
 		DiscView disc;
 		verdict.cover = DiscCover(a_world, a_at, a_eye, a_ref, a_scale, a_forWhisker, disc);
-		const bool tooSmallOnTheDisc = Decide(a_ref, verdict.cover);
+		const bool tooSmallOnTheDisc = Decide(a_ref, a_at, verdict.cover);
 		verdict.isSmall = fade::Fadeable(a_ref, a_at, a_settings);
 		verdict.stops = !tooSmallOnTheDisc && !verdict.isSmall;
 		disc.dropped = !verdict.stops;
