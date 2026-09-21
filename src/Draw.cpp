@@ -198,7 +198,7 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 					}
 					break;
 				case collision::RayKind::Disc:
-					if (a_settings.drawRays) {
+					if (a_settings.drawRays && (!ray.forWhisker || a_settings.drawWhiskers)) {
 						const Colour colour = ray.forWhisker ? (ray.counts ? kBlue : kBlueDark) : (ray.counts ? kYellow : kGrey);
 						Line(ray.from, ray.hit ? ray.hitAt : ray.to, colour);
 					}
@@ -207,6 +207,9 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 			}
 			if (a_settings.drawDiscs) {
 				for (const auto& disc : a_frame.discs) {
+					if (disc.forWhisker && !a_settings.drawWhiskers) {
+						continue;  // a whisker's, and the whiskers are not being drawn
+					}
 					const Colour colour = disc.forWhisker ? (disc.dropped ? kBlueDark : kBlue) : (disc.dropped ? kOrange : kYellow);
 					for (int i = 0; i < 32; ++i) {
 						Line(disc.outline[i], disc.outline[(i + 1) % 32], colour);

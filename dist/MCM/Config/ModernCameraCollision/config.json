@@ -531,7 +531,7 @@
           "type": "toggle",
           "text": "Draw the whiskers",
           "id": "bDrawWhiskers:Debug",
-          "help": "Red where a whisker found something the camera would stop at, green where clear or let through.",
+          "help": "The whiskers themselves -- red where one found something the camera would stop at, green where clear -- and everything they measured: their bumpers and sample rays, in blue. Off, only the camera's own check is drawn. This does not switch the whiskers off; that is on the Whiskers page.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
