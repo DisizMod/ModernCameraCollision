@@ -15,7 +15,7 @@ add_commonlibsse_plugin(ModernCameraCollision
         Draw.cpp
     NAME "ModernCameraCollision"
     AUTHOR "Sami"
-    VERSION 0.1.0
+    VERSION ${PROJECT_VERSION}
     USE_ADDRESS_LIBRARY
 )
 
