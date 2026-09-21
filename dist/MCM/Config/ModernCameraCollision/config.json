@@ -104,7 +104,7 @@
         },
         {
           "type": "text",
-          "text": "A capsule standing in the world about the pivot -- half-width as its radius, the caps at the heights above and below -- so it stays where the player is whatever the camera does. Each sample on the half of its surface facing the camera is reached by a ray from where the camera would be; the occluder on that ray, near the point the camera is about to hit, blocks the sample."
+          "text": "The bumper: a stadium of the set width and heights standing upright about the pivot, turned to face the camera about the vertical only. Samples on its edge, a few inside, and a horizontal side line. From a high angle it becomes a level disc at the middle, with points round it, a few inside, and a cross of side points."
         },
         {
           "type": "slider",
@@ -144,9 +144,9 @@
         },
         {
           "type": "slider",
-          "text": "Sample columns round the body",
+          "text": "Grid columns inside the bumper",
           "id": "iBodyColumns:Rules",
-          "help": "Rays round the half of the capsule that faces the camera, at each of the rows down it. Columns times rows is the number of rays per measured hit.",
+          "help": "The few points inside the bumper, besides the 16 on its edge.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 3,
@@ -157,7 +157,7 @@
         },
         {
           "type": "slider",
-          "text": "Sample rows down the body",
+          "text": "Grid rows inside the bumper",
           "id": "iBodyRows:Rules",
           "valueOptions": {
             "sourceType": "ModSettingInt",
@@ -194,9 +194,9 @@
         },
         {
           "type": "slider",
-          "text": "High angle: from this pitch, the body is seen end-on",
+          "text": "High angle: from this pitch, a level disc instead",
           "id": "fHighAngle:Rules",
-          "help": "With the camera more than this many degrees above or below level, only the cap facing it is sampled, smaller, and the side line becomes a cross along and across the camera's direction.",
+          "help": "With the camera more than this many degrees above or below level, the bumper becomes a level disc at the middle: points round it, a few inside, and the side points as a cross along and across the camera's direction.",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 10,
@@ -207,7 +207,7 @@
         },
         {
           "type": "slider",
-          "text": "High angle: the body's width, as a share",
+          "text": "High angle: the disc's radius, as a share of the half-width",
           "id": "fHighScale:Rules",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
@@ -522,7 +522,7 @@
           "type": "toggle",
           "text": "Draw the discs",
           "id": "bDrawDiscs:Debug",
-          "help": "The disc at each hit: yellow kept, orange dropped (pink and purple when measured for a whisker), with a mark where each sample found the occluder.",
+          "help": "The bumper (or the high-angle disc) at each judgement: yellow kept, orange dropped; blue when measured for a whisker; a mark where each sample found the occluder.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }

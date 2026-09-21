@@ -166,40 +166,31 @@ namespace mcc::collision
 		// the occluder is on that line before the player, seen when the line
 		// reaches the player with nothing solid on it.
 
-		// The body's capsule, in the world: a vertical cylinder of the
-		// half-width about the pivot, from -below to +above, with the caps
-		// rounding off inside those. The radius at a height: full along
-		// the cylinder, shrinking over the caps.
-		float CapsuleRadiusAt(float a_y)
+		// The bumper: a stadium of the half-width across, from -below to
+		// +above, the straight sides capped by half-circles of the
+		// half-width. A point of its edge at a_angle, in (across, up).
+		void BumperEdge(float a_angle, float& a_x, float& a_y)
 		{
 			const float w = g_settings.bodyHalfWidth;
+			const float c = std::cos(a_angle), sn = std::sin(a_angle);
+			const float capY = sn >= 0.0f ? (std::max)(g_settings.bodyAbove - w, 0.0f) : -(std::max)(g_settings.bodyBelow - w, 0.0f);
+			a_x = w * c;
+			a_y = capY + w * sn;
+		}
+
+		bool InBumper(float a_x, float a_y)
+		{
+			const float w = g_settings.bodyHalfWidth;
+			if (std::fabs(a_x) > w) {
+				return false;
+			}
 			const float top = (std::max)(g_settings.bodyAbove - w, 0.0f);
 			const float bottom = -(std::max)(g_settings.bodyBelow - w, 0.0f);
 			if (a_y >= bottom && a_y <= top) {
-				return w;
-			}
-			const float dy = a_y > top ? a_y - top : bottom - a_y;
-			return dy >= w ? 0.0f : std::sqrt(w * w - dy * dy);
-		}
-
-		// Whether a sample ray may go on past what it hit: the player's own
-		// body, a through layer, or a shape that is small at that point.
-		bool SeesThrough(const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref, const RE::NiPoint3& a_at)
-		{
-			const auto layer = a_root->GetCollisionLayer();
-			if (layer == RE::COL_LAYER::kCharController) {
 				return true;
 			}
-			const bool ground = layer == RE::COL_LAYER::kTerrain || layer == RE::COL_LAYER::kGround ||
-			                    (a_root->shape && a_root->shape->type == RE::hkpShapeType::kHeightField);
-			const auto rule = ground ? settings::Rule::Stop : RuleFor(layer);
-			if (rule == settings::Rule::Through) {
-				return true;
-			}
-			if (rule == settings::Rule::Stop) {
-				return false;
-			}
-			return fade::Fadeable(a_ref, a_at, g_settings);
+			const float dy = a_y - (a_y > top ? top : bottom);
+			return a_x * a_x + dy * dy <= w * w;
 		}
 
 		// Every hit along a ray, nearest first, through the engine's own pick
@@ -239,8 +230,9 @@ namespace mcc::collision
 		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref,
 			float a_scale, bool a_forWhisker, DiscView& a_disc)
 		{
-			// The body is a capsule in the world about the pivot; the samples
-			// are on the half of its surface that faces the eye.
+			// The bumper stands upright in the world about the pivot, turned to
+			// face the eye about the vertical only, so it never tilts. From a
+			// high or low angle it is a level disc at the middle instead.
 			const RE::NiPoint3 eye = a_eye;
 			const RE::NiPoint3 centre = g_castFrom;
 			const RE::NiPoint3 worldUp{ 0.0f, 0.0f, 1.0f };
@@ -249,64 +241,67 @@ namespace mcc::collision
 			const RE::NiPoint3 facing = Length(toEye) > 1.0f ? Normalized(toEye) : RE::NiPoint3{ 1.0f, 0.0f, 0.0f };  // toward the eye, level
 			const RE::NiPoint3 across = Normalized(Cross(worldUp, facing));                                              // beside the player, level
 			const auto         id = a_ref ? a_ref->GetFormID() : 0u;
-			a_disc = DiscView{ centre, 0, {}, false, a_forWhisker, 0, {}, {} };
+			a_disc = DiscView{ centre, {}, false, a_forWhisker, 0, {}, {} };
 
-			const int   columns = std::clamp(g_settings.bodyColumns, 3, 7);
-			const int   rows = std::clamp(g_settings.bodyRows, 3, 9);
-			const float w = g_settings.bodyHalfWidth;
-			const float above = g_settings.bodyAbove;
-			const float below = g_settings.bodyBelow;
-
-			// From a high or low angle the body is seen end-on: only the cap
-			// facing the eye is sampled, smaller, and the side line is a
-			// cross.
 			const RE::NiPoint3 offset = eye - centre;
 			const float        level = std::sqrt(offset.x * offset.x + offset.y * offset.y);
 			const float        pitch = std::atan2(offset.z, (std::max)(level, 1.0f)) / kDegToRad;
 			const bool         high = std::fabs(pitch) > g_settings.highAngle;
-			const bool         fromAbove = offset.z > 0.0f;
-			const float        scale = high ? g_settings.highScale : 1.0f;
-			// The heights sampled: the whole body, or the cap facing the eye.
-			float yLow = -below, yHigh = above;
-			if (high) {
-				const float cap = (std::min)(w, fromAbove ? above : below);
-				yLow = fromAbove ? above - cap : -below;
-				yHigh = fromAbove ? above : -below + cap;
-			}
+			const int          columns = std::clamp(g_settings.bodyColumns, 3, 7);
+			const int          rows = std::clamp(g_settings.bodyRows, 3, 9);
+			const float        w = g_settings.bodyHalfWidth;
+			const int          sidePoints = std::clamp(g_settings.sidePoints, 0, 6);
+			const float        sideReach = (std::max)(g_settings.sideReach, 0.0f);
+			int                n = 0;
 
-			int n = 0;
-			a_disc.rings = 0;
-			for (int r = 0; r < rows && n < 64; ++r) {
-				const float y = rows > 1 ? yLow + (yHigh - yLow) * static_cast<float>(r) / static_cast<float>(rows - 1) : 0.0f;
-				const float radius = CapsuleRadiusAt(y) * scale;
-				// The ring, for drawing.
-				if (a_disc.rings < 9) {
-					for (int i = 0; i < 16; ++i) {
-						const float a = static_cast<float>(i) * (2.0f * kPi / 16.0f);
-						a_disc.ring[a_disc.rings][i] = centre + worldUp * y + (facing * std::cos(a) + across * std::sin(a)) * radius;
+			if (!high) {
+				// The edge, sampled and drawn; a grid of a few points inside;
+				// the side line at the pivot's height.
+				for (int i = 0; i < 32; ++i) {
+					float x, y;
+					BumperEdge(static_cast<float>(i) * (2.0f * kPi / 32.0f), x, y);
+					a_disc.outline[i] = centre + across * x + worldUp * y;
+					if (i % 2 == 0 && n < 64) {
+						a_disc.point[n++] = a_disc.outline[i];  // 16 on the edge
 					}
-					++a_disc.rings;
 				}
-				// The samples: the half of the ring that faces the eye, from
-				// one side round to the other.
-				for (int c = 0; c < columns && n < 64; ++c) {
-					const float a = columns > 1 ? -kPi / 2.0f + kPi * static_cast<float>(c) / static_cast<float>(columns - 1) : 0.0f;
-					a_disc.point[n++] = centre + worldUp * y + (facing * std::cos(a) + across * std::sin(a)) * radius;
+				for (int r = 0; r < rows && n < 64; ++r) {
+					const float y = rows > 1 ? -g_settings.bodyBelow + (g_settings.bodyAbove + g_settings.bodyBelow) * (static_cast<float>(r) + 0.5f) / static_cast<float>(rows) : 0.0f;
+					for (int c = 0; c < columns && n < 64; ++c) {
+						const float x = columns > 1 ? -w + 2.0f * w * (static_cast<float>(c) + 0.5f) / static_cast<float>(columns) : 0.0f;
+						if (InBumper(x, y)) {
+							a_disc.point[n++] = centre + across * x + worldUp * y;
+						}
+					}
 				}
-			}
-			// The side line: at the pivot's height, level, across the eye's
-			// direction, out past the body's edge on both sides -- and from a
-			// high angle a cross, along the eye's direction as well.
-			const int   sidePoints = std::clamp(g_settings.sidePoints, 0, 6);
-			const float sideReach = (std::max)(g_settings.sideReach, 0.0f);
-			const float sideY = high ? (fromAbove ? above : -below) : 0.0f;  // the cross sits on the cap, the line at the pivot
-			for (int i = 1; i <= sidePoints && n + 1 < 64; ++i) {
-				const float x = w * scale + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
-				a_disc.point[n++] = centre + worldUp * sideY + across * x;
-				a_disc.point[n++] = centre + worldUp * sideY - across * x;
-				if (high && n + 1 < 64) {
-					a_disc.point[n++] = centre + worldUp * sideY + facing * x;
-					a_disc.point[n++] = centre + worldUp * sideY - facing * x;
+				for (int i = 1; i <= sidePoints && n + 1 < 64; ++i) {
+					const float x = w + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
+					a_disc.point[n++] = centre + across * x;
+					a_disc.point[n++] = centre - across * x;
+				}
+			} else {
+				// A level disc at the middle: points round it, a few inside,
+				// and the cross of side points along and across the eye's
+				// direction.
+				const float radius = w * g_settings.highScale;
+				for (int i = 0; i < 32; ++i) {
+					const float a = static_cast<float>(i) * (2.0f * kPi / 32.0f);
+					a_disc.outline[i] = centre + (facing * std::cos(a) + across * std::sin(a)) * radius;
+					if (i % 4 == 0 && n < 64) {
+						a_disc.point[n++] = a_disc.outline[i];  // 8 round the edge
+					}
+				}
+				a_disc.point[n++] = centre;
+				for (int i = 0; i < 4 && n < 64; ++i) {
+					const float a = static_cast<float>(i) * (kPi / 2.0f) + kPi / 4.0f;
+					a_disc.point[n++] = centre + (facing * std::cos(a) + across * std::sin(a)) * (radius * 0.5f);
+				}
+				for (int i = 1; i <= sidePoints && n + 3 < 64; ++i) {
+					const float x = radius + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
+					a_disc.point[n++] = centre + across * x;
+					a_disc.point[n++] = centre - across * x;
+					a_disc.point[n++] = centre + facing * x;
+					a_disc.point[n++] = centre - facing * x;
 				}
 			}
 			a_disc.samples = n;

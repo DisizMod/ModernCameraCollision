@@ -138,6 +138,8 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 		constexpr Colour kRed{ 1.0f, 0.3f, 0.3f, 0.9f };
 		constexpr Colour kGreen{ 0.3f, 1.0f, 0.45f, 0.7f };
 		constexpr Colour kViolet{ 0.8f, 0.45f, 1.0f, 0.8f };
+		constexpr Colour kBlue{ 0.35f, 0.65f, 1.0f, 0.9f };
+		constexpr Colour kBlueDark{ 0.2f, 0.35f, 0.8f, 0.9f };
 
 		std::vector<Vertex> g_lines;
 
@@ -197,7 +199,7 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 					break;
 				case collision::RayKind::Disc:
 					if (a_settings.drawRays) {
-						const Colour colour = ray.forWhisker ? (ray.counts ? kPink : kPurple) : (ray.counts ? kYellow : kGrey);
+						const Colour colour = ray.forWhisker ? (ray.counts ? kBlue : kBlueDark) : (ray.counts ? kYellow : kGrey);
 						Line(ray.from, ray.hit ? ray.hitAt : ray.to, colour);
 					}
 					break;
@@ -205,11 +207,9 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 			}
 			if (a_settings.drawDiscs) {
 				for (const auto& disc : a_frame.discs) {
-					const Colour colour = disc.forWhisker ? (disc.dropped ? kPurple : kPink) : (disc.dropped ? kOrange : kYellow);
-					for (int r = 0; r < disc.rings; ++r) {
-						for (int i = 0; i < 16; ++i) {
-							Line(disc.ring[r][i], disc.ring[r][(i + 1) % 16], colour);
-						}
+					const Colour colour = disc.forWhisker ? (disc.dropped ? kBlueDark : kBlue) : (disc.dropped ? kOrange : kYellow);
+					for (int i = 0; i < 32; ++i) {
+						Line(disc.outline[i], disc.outline[(i + 1) % 32], colour);
 					}
 					for (int i = 0; i < disc.samples; ++i) {
 						Mark(disc.point[i], disc.hit[i] ? colour : kGrey, disc.hit[i] ? 4.0f : 2.0f);
