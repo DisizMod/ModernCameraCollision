@@ -261,8 +261,8 @@ namespace mcc::collision
 			const float        level = std::sqrt(offset.x * offset.x + offset.y * offset.y);
 			const float        pitch = std::atan2(offset.z, (std::max)(level, 1.0f)) / kDegToRad;
 			const bool         high = std::fabs(pitch) > g_settings.highAngle;
-			const int          columns = std::clamp(g_settings.bodyColumns, 3, 7);
-			const int          rows = std::clamp(g_settings.bodyRows, 3, 9);
+			const int          columns = std::clamp(g_settings.bodyColumns, 1, 7);
+			const int          rows = std::clamp(g_settings.bodyRows, 1, 9);
 			const float        w = g_settings.bodyHalfWidth;
 			const int          sidePoints = std::clamp(g_settings.sidePoints, 0, 6);
 			const float        sideReach = (std::max)(g_settings.sideReach, 0.0f);

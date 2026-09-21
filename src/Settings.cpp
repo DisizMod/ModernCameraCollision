@@ -225,8 +225,8 @@ namespace mcc::settings
 		ReadAllOverrides(values);
 
 		// Kept sane whatever the files say.
-		values.bodyColumns = std::clamp(values.bodyColumns, 3, 7);
-		values.bodyRows = std::clamp(values.bodyRows, 3, 9);
+		values.bodyColumns = std::clamp(values.bodyColumns, 1, 7);
+		values.bodyRows = std::clamp(values.bodyRows, 1, 9);
 		values.sidePoints = std::clamp(values.sidePoints, 0, 6);
 		values.highScale = std::clamp(values.highScale, 0.2f, 1.0f);
 		values.highPoints = std::clamp(values.highPoints, 4, 16);

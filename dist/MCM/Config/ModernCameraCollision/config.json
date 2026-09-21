@@ -149,7 +149,7 @@
           "help": "The grid inside the bumper, and its edge on the same pattern: this many points round each cap, and a point on each side at each row's height.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
-            "min": 3,
+            "min": 1,
             "max": 7,
             "step": 1,
             "formatString": "{0}"
@@ -161,7 +161,7 @@
           "id": "iBodyRows:Rules",
           "valueOptions": {
             "sourceType": "ModSettingInt",
-            "min": 3,
+            "min": 1,
             "max": 9,
             "step": 1,
             "formatString": "{0}"
