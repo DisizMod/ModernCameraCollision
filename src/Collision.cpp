@@ -10,23 +10,28 @@ namespace mcc::collision
 {
 	namespace
 	{
-		constexpr std::uint64_t kUpdateCameraCollisionID = 49980;  // ThirdPersonState::UpdateCameraCollision, SE
-		constexpr std::uint64_t kLinearCastID = 60554;             // hkpWorld::LinearCast, SE
-		constexpr std::uint64_t kCastRayID = 60551;                // hkpWorld::CastRay, SE
+		// The engine functions, SE and AE ids (CommonLibSSE-NG's own pairs
+		// for the Havok ones). The camera's update is taken from the camera
+		// states' vtables instead of ThirdPersonState::UpdateCameraCollision,
+		// which has no published AE id: every state that positions the
+		// third-person camera -- on foot, on a horse, on a dragon, bleeding
+		// out -- has its Update hooked, and the camera's own sweep is told
+		// from any other by the layer it casts on.
+		constexpr REL::RelocationID kLinearCastID{ 60554, 61402 };  // hkpWorld::LinearCast
+		constexpr REL::RelocationID kCastRayID{ 60551, 61399 };     // hkpWorld::CastRay
 
-		using UpdateCameraCollisionFn = void(RE::ThirdPersonState*);
+		using CameraUpdateFn = void(RE::TESCameraState*, RE::BSTSmartPointer<RE::TESCameraState>&);
 		using LinearCastFn = void(const RE::hkpWorld*, const RE::hkpCollidable*, const RE::hkpLinearCastInput&,
 			RE::hkpCdPointCollector&, RE::hkpCdPointCollector*);
 		using CastRayFn = void(const RE::hkpWorld*, const RE::hkpWorldRayCastInput&, RE::hkpWorldRayCastOutput&);
 
-		UpdateCameraCollisionFn* g_originalUpdate = nullptr;
-		LinearCastFn*            g_originalLinearCast = nullptr;
+		LinearCastFn* g_originalLinearCast = nullptr;
 
 		// The engine's ray cast, called as is; taken inside a function so no
 		// address is resolved during static initialisation.
 		CastRayFn* EngineCastRay()
 		{
-			static REL::Relocation<CastRayFn> fn{ REL::ID(kCastRayID) };
+			static REL::Relocation<CastRayFn> fn{ kCastRayID };
 			return fn.get();
 		}
 
@@ -473,11 +478,26 @@ namespace mcc::collision
 		std::vector<ProxyCollector::Dropped> g_dropped;  // this update's
 
 		// --- the hooks ----------------------------------------------------------------
-		void UpdateCameraCollisionHook(RE::ThirdPersonState* a_this)
+		//
+		// The camera state's Update: the engine's, which sweeps the camera
+		// and places it, then this mod's pass over what the sweep found. One
+		// hook per state vtable, each keeping the original it replaced.
+		enum CameraState : int
 		{
+			kThirdPerson,
+			kHorse,
+			kDragon,
+			kBleedout,
+			kStates
+		};
+		CameraUpdateFn* g_originalUpdate[kStates] = {};
+
+		void CameraUpdate(RE::TESCameraState* a_this, RE::BSTSmartPointer<RE::TESCameraState>& a_next, CameraUpdateFn* a_original)
+		{
+			auto* state = static_cast<RE::ThirdPersonState*>(a_this);
 			g_settings = settings::Current();
 			if (!g_settings.enabled) {
-				g_originalUpdate(a_this);
+				a_original(a_this, a_next);
 				return;
 			}
 			const auto n = g_updates.fetch_add(1, std::memory_order_relaxed);
@@ -488,7 +508,7 @@ namespace mcc::collision
 			g_building.update = n;
 
 			g_inCameraCollision = true;
-			g_originalUpdate(a_this);
+			a_original(a_this, a_next);
 			g_inCameraCollision = false;
 
 			for (const auto& dropped : g_dropped) {
@@ -496,10 +516,10 @@ namespace mcc::collision
 			}
 			fade::Update(g_settings);
 			ForgetOldDecisions();
-			motion::Apply(a_this, g_castThisUpdate, g_settings);
+			motion::Apply(state, g_castThisUpdate, g_settings);
 
 			if (Recording()) {
-				g_building.rays.push_back({ g_castFrom, g_castTo, a_this->translation, true, true, false, RayKind::Cast });
+				g_building.rays.push_back({ g_castFrom, g_castTo, state->translation, true, true, false, RayKind::Cast });
 				g_building.bounds = fade::Bounds();
 			}
 			{
@@ -511,14 +531,23 @@ namespace mcc::collision
 
 			if (g_verbose) {
 				spdlog::info("update {} -> camera at ({:.1f}, {:.1f}, {:.1f}), held at {:.2f} of the cast", n,
-					a_this->translation.x, a_this->translation.y, a_this->translation.z, motion::Pull());
+					state->translation.x, state->translation.y, state->translation.z, motion::Pull());
 			}
 		}
 
+		template <CameraState N>
+		void CameraUpdateHook(RE::TESCameraState* a_this, RE::BSTSmartPointer<RE::TESCameraState>& a_next)
+		{
+			CameraUpdate(a_this, a_next, g_originalUpdate[N]);
+		}
+
+		// The camera's sweep: during a hooked update, and cast by the
+		// camera's own collidable, on its own layer -- no other cast the
+		// update might make is touched.
 		void LinearCastHook(const RE::hkpWorld* a_world, const RE::hkpCollidable* a_colA, const RE::hkpLinearCastInput& a_input,
 			RE::hkpCdPointCollector& a_castCollector, RE::hkpCdPointCollector* a_startCollector)
 		{
-			if (!g_inCameraCollision) {
+			if (!g_inCameraCollision || !a_colA || a_colA->GetCollisionLayer() != RE::COL_LAYER::kCameraPick) {
 				g_originalLinearCast(a_world, a_colA, a_input, a_castCollector, a_startCollector);
 				return;
 			}
@@ -547,9 +576,9 @@ namespace mcc::collision
 		}
 
 		template <class Fn>
-		bool Hook(std::uint64_t a_id, Fn* a_hook, Fn*& a_original, const char* a_name)
+		bool Hook(REL::RelocationID a_id, Fn* a_hook, Fn*& a_original, const char* a_name)
 		{
-			const REL::Relocation<std::uintptr_t> target{ REL::ID(a_id) };
+			const REL::Relocation<std::uintptr_t> target{ a_id };
 			void*                                 trampoline = nullptr;
 			if (const auto status = MH_CreateHook(reinterpret_cast<void*>(target.address()),
 					reinterpret_cast<void*>(a_hook), &trampoline);
@@ -656,7 +685,19 @@ namespace mcc::collision
 			spdlog::error("collision: MH_Initialize failed: {}", MH_StatusToString(status));
 			return false;
 		}
-		return Hook(kUpdateCameraCollisionID, &UpdateCameraCollisionHook, g_originalUpdate, "ThirdPersonState::UpdateCameraCollision") &&
-		       Hook(kLinearCastID, &LinearCastHook, g_originalLinearCast, "hkpWorld::LinearCast");
+		// TESCameraState::Update is the fourth virtual on SE and AE; VR has
+		// one more before it.
+		const std::size_t update = REL::Module::IsVR() ? 4 : 3;
+		const auto        hookState = [&](CameraState a_state, const auto& a_vtable, CameraUpdateFn* a_hook, const char* a_name) {
+			REL::Relocation<std::uintptr_t> vtable{ a_vtable[0] };
+			g_originalUpdate[a_state] = reinterpret_cast<CameraUpdateFn*>(vtable.write_vfunc(update, a_hook));
+			spdlog::info("collision: hooked {}::Update", a_name);
+		};
+		hookState(kThirdPerson, RE::VTABLE_ThirdPersonState, &CameraUpdateHook<kThirdPerson>, "ThirdPersonState");
+		hookState(kHorse, RE::VTABLE_HorseCameraState, &CameraUpdateHook<kHorse>, "HorseCameraState");
+		hookState(kDragon, RE::VTABLE_DragonCameraState, &CameraUpdateHook<kDragon>, "DragonCameraState");
+		hookState(kBleedout, RE::VTABLE_BleedoutCameraState, &CameraUpdateHook<kBleedout>, "BleedoutCameraState");
+
+		return Hook(kLinearCastID, &LinearCastHook, g_originalLinearCast, "hkpWorld::LinearCast");
 	}
 }

@@ -67,10 +67,20 @@ through `d10dbab`). This is what came out, and why.
 
 ## Engine facts
 
-- `ThirdPersonState::UpdateCameraCollision` SE id 49980 (no AE id in
-  CommonLibSSE-NG 7.5.1 — AE is refused); `hkpWorld::LinearCast` 60554;
-  `hkpWorld::CastRay` 60551. CommonLib declares `hkpCdPointCollector`'s
-  dtor/`Reset` without defining them: the collector ABI is laid out by hand.
+- Hooks: the camera states' virtual `Update` (vtable slot 3 on SE/AE, 4 on
+  VR) on `ThirdPersonState`, `HorseCameraState`, `DragonCameraState` and
+  `BleedoutCameraState` — the way SmoothCam does it, since
+  `ThirdPersonState::UpdateCameraCollision` (SE 49980) has no published AE
+  id; `hkpWorld::LinearCast` 60554 / AE 61402; `hkpWorld::CastRay` 60551 /
+  AE 61399. The camera's own sweep is told from any other cast during the
+  update by its collidable's layer, L_CAMERA (39). CommonLib declares
+  `hkpCdPointCollector`'s dtor/`Reset` without defining them: the collector
+  ABI is laid out by hand.
+- Runtimes: SE 1.5.97 is where it was built and tested; AE 1.6.x and 1.7.x
+  (Steam is 1.7.104; SKSE 2.3.1; Address Library "format 5") load through
+  the same ids. VR is refused. SmoothCam's `CameraCaster` (SE 32270 / AE
+  33007) is the engine's camera sweep helper, an alternative gate if ever
+  needed.
 - Statics are one MOPP shape per reference.
 - Shader-property `alpha` alone shows nothing on statics; `materialAlpha`
   alone only on already-blended shapes; a visible fade needs the property.

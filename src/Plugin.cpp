@@ -6,13 +6,13 @@
 
 namespace
 {
-	// SE 1.5.97 is where every hook was found and run. AE has no published
-	// id for ThirdPersonState::UpdateCameraCollision in this CommonLib, so
-	// it is refused rather than half-hooked.
+	// SE 1.5.97 is where every hook was found and run; AE (1.6 and 1.7)
+	// resolves the same functions through CommonLibSSE-NG's id pairs and
+	// the camera states' vtables. VR is refused: its camera state and
+	// renderer layouts were never tried.
 	bool IsSupportedRuntime()
 	{
-		const auto version = REL::Module::get().version();
-		return version[0] == 1 && version[1] == 5 && version[2] == 97;
+		return !REL::Module::IsVR();
 	}
 
 	// What L_CAMERA collides with, from the COLL records, so a layer rule
@@ -64,10 +64,11 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 		return false;
 	}
 	if (!IsSupportedRuntime()) {
-		spdlog::critical("UNSUPPORTED RUNTIME {}.{}.{}.{} -- ModernCameraCollision runs on Skyrim SE 1.5.97 only for now, and is refusing to load",
+		spdlog::critical("UNSUPPORTED RUNTIME {}.{}.{}.{} -- ModernCameraCollision runs on Skyrim SE and AE, not VR, and is refusing to load",
 			version[0], version[1], version[2], version[3]);
 		return false;
 	}
+	spdlog::info("runtime is {}", REL::Module::IsAE() ? "AE" : "SE");
 
 	SKSE::Init(a_skse);
 
