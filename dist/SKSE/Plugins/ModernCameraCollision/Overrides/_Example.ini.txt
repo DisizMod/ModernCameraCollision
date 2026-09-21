@@ -1,0 +1,26 @@
+; Modern Camera Collision -- object overrides.
+;
+; Any *.ini in this folder is read at load and when the MCM closes; a mod can
+; ship its own file here. An override gives one object a rule that wins over
+; its collision layer's -- even the ground's. Files are read in name order and
+; a later file's rule for the same object wins, so a patch can override a mod.
+;
+; Rename this file to end in .ini to use it.
+;
+; A section names the object, one of:
+;   [Plugin.esp|0xFORMID]          the base object's form, plugin name and its
+;                                  form id within that plugin (the load-order
+;                                  byte is ignored)
+;   [model:path\to\model.nif]     every base object with that model, the path
+;                                  as the record has it, case does not matter
+; with one key:
+;   rule = measure | stop | through
+;     measure: the bumper and the size decide, as for any object
+;     stop:    always stops the camera
+;     through: never stops it; faded whole
+
+;[Skyrim.esm|0x29CB0]
+;rule = stop
+
+;[model:Architecture\Farmhouse\Interior\FarmInt2Doorway03.nif]
+;rule = stop

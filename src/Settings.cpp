@@ -1,5 +1,7 @@
 #include "Settings.h"
 
+#include <filesystem>
+
 // windows.h's min/max macros, already in through CommonLib's PCH, break
 // SimpleIni's std::numeric_limits calls; taken off for its include.
 #pragma push_macro("min")
@@ -20,6 +22,86 @@ namespace mcc::settings
 		constexpr const char* kDefaults = "Data/MCM/Config/ModernCameraCollision/settings.ini";
 		constexpr const char* kUser = "Data/MCM/Settings/ModernCameraCollision.ini";
 		constexpr const char* kEvent = "MCC_SettingsChanged";
+		constexpr const char* kOverrides = "Data/SKSE/Plugins/ModernCameraCollision/Overrides";
+
+		std::string Lower(std::string a_s)
+		{
+			for (auto& c : a_s) {
+				c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+			}
+			return a_s;
+		}
+
+		bool ParseRule(const char* a_value, Rule& a_rule)
+		{
+			const std::string v = Lower(a_value ? a_value : "");
+			if (v == "measure" || v == "0") { a_rule = Rule::Measure; return true; }
+			if (v == "stop" || v == "1") { a_rule = Rule::Stop; return true; }
+			if (v == "through" || v == "2") { a_rule = Rule::Through; return true; }
+			return false;
+		}
+
+		// One override file: a section per object, "[Plugin.esp|0xFORMID]"
+		// or "[model:path\to\file.nif]", with "rule = measure|stop|through".
+		void ReadOverrides(const std::filesystem::path& a_path, Values& a_values)
+		{
+			CSimpleIniA ini;
+			ini.SetUnicode();
+			if (ini.LoadFile(a_path.string().c_str()) < 0) {
+				spdlog::warn("overrides: could not read {}", a_path.string());
+				return;
+			}
+			auto* data = RE::TESDataHandler::GetSingleton();
+			CSimpleIniA::TNamesDepend sections;
+			ini.GetAllSections(sections);
+			int count = 0;
+			for (const auto& section : sections) {
+				Rule rule;
+				if (!ParseRule(ini.GetValue(section.pItem, "rule"), rule)) {
+					spdlog::warn("overrides: {} [{}]: no rule, or not one of measure, stop, through", a_path.filename().string(), section.pItem);
+					continue;
+				}
+				const std::string name = section.pItem;
+				if (name.rfind("model:", 0) == 0) {
+					a_values.modelOverrides[Lower(name.substr(6))] = rule;
+					++count;
+					continue;
+				}
+				const auto bar = name.find('|');
+				if (bar == std::string::npos || !data) {
+					spdlog::warn("overrides: {} [{}]: expected Plugin.esp|0xFORMID or model:path", a_path.filename().string(), section.pItem);
+					continue;
+				}
+				const std::string plugin = name.substr(0, bar);
+				const auto        local = static_cast<std::uint32_t>(std::strtoul(name.substr(bar + 1).c_str(), nullptr, 0));
+				const auto        form = data->LookupFormID(local & 0x00FFFFFF, plugin);
+				if (form == 0) {
+					spdlog::warn("overrides: {} [{}]: no such form (plugin not loaded?)", a_path.filename().string(), section.pItem);
+					continue;
+				}
+				a_values.formOverrides[form] = rule;
+				++count;
+			}
+			spdlog::info("overrides: {} object(s) from {}", count, a_path.filename().string());
+		}
+
+		void ReadAllOverrides(Values& a_values)
+		{
+			std::error_code error;
+			if (!std::filesystem::is_directory(kOverrides, error)) {
+				return;
+			}
+			std::vector<std::filesystem::path> files;
+			for (const auto& entry : std::filesystem::directory_iterator(kOverrides, error)) {
+				if (entry.is_regular_file() && Lower(entry.path().extension().string()) == ".ini") {
+					files.push_back(entry.path());
+				}
+			}
+			std::sort(files.begin(), files.end());  // later names win
+			for (const auto& file : files) {
+				ReadOverrides(file, a_values);
+			}
+		}
 
 		// One file's keys applied over a_values; keys it lacks are left as
 		// they are, which is how the user's file rides over the defaults.
@@ -139,6 +221,7 @@ namespace mcc::settings
 		Values     values;  // the built-in defaults
 		const bool defaults = Read(kDefaults, values);
 		const bool user = Read(kUser, values);
+		ReadAllOverrides(values);
 
 		// Kept sane whatever the files say.
 		values.bodyColumns = std::clamp(values.bodyColumns, 3, 7);
@@ -161,6 +244,31 @@ namespace mcc::settings
 			values.bodyAbove, values.bodyBelow, values.bodyColumns, values.bodyRows, values.dropBelowPercent, values.partDistance, values.holdSecs,
 			values.easeInSecs, values.easeOutSecs, values.whiskers, values.shorten, values.swing, values.fade, values.fadeAlpha,
 			values.fadeSecs, values.layerRules.size());
+		if (!values.formOverrides.empty() || !values.modelOverrides.empty()) {
+			spdlog::info("settings: {} form override(s), {} model override(s)", values.formOverrides.size(), values.modelOverrides.size());
+		}
+	}
+
+	const Rule* Override(const Values& a_values, RE::TESObjectREFR* a_ref)
+	{
+		if (!a_ref || (a_values.formOverrides.empty() && a_values.modelOverrides.empty())) {
+			return nullptr;
+		}
+		const auto* base = a_ref->GetBaseObject();
+		if (!base) {
+			return nullptr;
+		}
+		if (const auto it = a_values.formOverrides.find(base->GetFormID()); it != a_values.formOverrides.end()) {
+			return &it->second;
+		}
+		if (!a_values.modelOverrides.empty()) {
+			if (const auto* model = base->As<RE::TESModel>()) {
+				if (const auto it = a_values.modelOverrides.find(Lower(model->GetModel())); it != a_values.modelOverrides.end()) {
+					return &it->second;
+				}
+			}
+		}
+		return nullptr;
 	}
 
 	void Install()

@@ -75,6 +75,12 @@ namespace mcc::settings
 		// [Layers]: a rule per collision layer, by the COLL record's name
 		std::unordered_map<std::string, Rule> layerRules;
 
+		// Overrides, from Data/SKSE/Plugins/ModernCameraCollision/Overrides/
+		// *.ini: a rule for one object that wins over its layer's. By the
+		// base object's resolved form id, or by its model path, lowercase.
+		std::unordered_map<std::uint32_t, Rule> formOverrides;
+		std::unordered_map<std::string, Rule>   modelOverrides;
+
 		// [Debug]
 		bool drawDiscs = false;
 		bool drawWhiskers = false;
@@ -86,9 +92,13 @@ namespace mcc::settings
 	// A copy of what is set right now. Cheap; taken once per camera update.
 	[[nodiscard]] Values Current();
 
-	// Reads the two files. Missing files are the defaults; a bad value is
-	// the default for that key, logged.
+	// Reads the two files, and the override folder. Missing files are the
+	// defaults; a bad value is the default for that key, logged.
 	void Load();
+
+	// The rule an object has been given, if any: its base form's, else its
+	// model's.
+	[[nodiscard]] const Rule* Override(const Values& a_values, RE::TESObjectREFR* a_ref);
 
 	// Listens for the MCM script's mod event and reloads on it.
 	void Install();

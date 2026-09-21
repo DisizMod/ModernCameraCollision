@@ -529,7 +529,11 @@ namespace mcc::collision
 		}
 		const bool ground = layer == RE::COL_LAYER::kTerrain || layer == RE::COL_LAYER::kGround ||
 		                    (a_root->shape && a_root->shape->type == RE::hkpShapeType::kHeightField);
-		const auto rule = ground ? settings::Rule::Stop : RuleFor(layer);
+		// An override for this object wins over its layer, even the ground's.
+		auto rule = ground ? settings::Rule::Stop : RuleFor(layer);
+		if (const auto* over = settings::Override(a_settings, a_ref)) {
+			rule = *over;
+		}
 		if (rule == settings::Rule::Through) {
 			verdict.stops = false;
 			verdict.whole = true;
