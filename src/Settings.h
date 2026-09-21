@@ -50,6 +50,7 @@ namespace mcc::settings
 		// direction.
 		float highAngle = 45.0f;
 		float highScale = 0.6f;
+		int   highPoints = 8;        // points round the high-angle disc's edge
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
 		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 

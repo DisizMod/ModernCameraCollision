@@ -144,9 +144,9 @@
         },
         {
           "type": "slider",
-          "text": "Grid columns inside the bumper",
+          "text": "Grid columns",
           "id": "iBodyColumns:Rules",
-          "help": "The few points inside the bumper, besides the 16 on its edge.",
+          "help": "The grid inside the bumper, and its edge on the same pattern: this many points round each cap, and a point on each side at each row's height.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 3,
@@ -157,7 +157,7 @@
         },
         {
           "type": "slider",
-          "text": "Grid rows inside the bumper",
+          "text": "Grid rows",
           "id": "iBodyRows:Rules",
           "valueOptions": {
             "sourceType": "ModSettingInt",
@@ -215,6 +215,18 @@
             "max": 1.0,
             "step": 0.05,
             "formatString": "{2}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "High angle: points round the disc",
+          "id": "iHighPoints:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 4,
+            "max": 16,
+            "step": 1,
+            "formatString": "{0}"
           }
         },
         {

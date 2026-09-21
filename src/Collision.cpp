@@ -178,43 +178,18 @@ namespace mcc::collision
 			a_y = capY + w * sn;
 		}
 
-		// A point of the bumper's edge at distance a_t along its perimeter,
-		// from the right side's middle going up, in (across, up); and the
-		// perimeter's length.
-		float BumperPerimeter()
+		// The edge's half-width at a height: the full half-width along the
+		// straight sides, less over the caps, none beyond them.
+		float BumperHalfWidthAt(float a_y)
 		{
 			const float w = g_settings.bodyHalfWidth;
 			const float top = (std::max)(g_settings.bodyAbove - w, 0.0f);
-			const float bottom = (std::max)(g_settings.bodyBelow - w, 0.0f);
-			return 2.0f * (top + bottom) + 2.0f * kPi * w;
-		}
-
-		void BumperAt(float a_t, float& a_x, float& a_y)
-		{
-			const float w = g_settings.bodyHalfWidth;
-			const float top = (std::max)(g_settings.bodyAbove - w, 0.0f);
-			const float bottom = (std::max)(g_settings.bodyBelow - w, 0.0f);
-			const float cap = kPi * w;  // a half-circle
-			float       t = a_t;
-			if (t < top) {  // right side, up
-				a_x = w; a_y = t; return;
+			const float bottom = -(std::max)(g_settings.bodyBelow - w, 0.0f);
+			if (a_y >= bottom && a_y <= top) {
+				return w;
 			}
-			t -= top;
-			if (t < cap) {  // top cap, right to left
-				const float a = t / w;
-				a_x = w * std::cos(a); a_y = top + w * std::sin(a); return;
-			}
-			t -= cap;
-			if (t < top + bottom) {  // left side, down
-				a_x = -w; a_y = top - t; return;
-			}
-			t -= top + bottom;
-			if (t < cap) {  // bottom cap, left to right
-				const float a = kPi + t / w;
-				a_x = w * std::cos(a); a_y = -bottom + w * std::sin(a); return;
-			}
-			t -= cap;  // right side, up to the middle
-			a_x = w; a_y = -bottom + t;
+			const float dy = a_y > top ? a_y - top : bottom - a_y;
+			return dy >= w ? 0.0f : std::sqrt(w * w - dy * dy);
 		}
 
 		bool InBumper(float a_x, float a_y)
@@ -294,25 +269,32 @@ namespace mcc::collision
 			int                n = 0;
 
 			if (!high) {
-				// The edge, drawn; sampled evenly along its perimeter at the
-				// grid's own spacing, so edge and inside are one pattern; a
-				// grid of a few points inside; the side line at the pivot's
-				// height.
+				// The edge, drawn; sampled on the grid's own pattern: a point
+				// on each side at each row's height, and columns-many round
+				// each cap, spaced as the grid's cells are; a grid of a few
+				// points inside; the side line at the pivot's height.
 				for (int i = 0; i < 32; ++i) {
 					float x, y;
 					BumperEdge(static_cast<float>(i) * (2.0f * kPi / 32.0f), x, y);
 					a_disc.outline[i] = centre + across * x + worldUp * y;
 				}
-				const float spacing = (std::min)(2.0f * w / static_cast<float>(columns), (g_settings.bodyAbove + g_settings.bodyBelow) / static_cast<float>(rows));
-				const float perimeter = BumperPerimeter();
-				const int   edgePoints = std::clamp(static_cast<int>(perimeter / (std::max)(spacing, 1.0f)), 8, 32);
-				for (int i = 0; i < edgePoints && n < 64; ++i) {
-					float x, y;
-					BumperAt(perimeter * static_cast<float>(i) / static_cast<float>(edgePoints), x, y);
+				const float height = g_settings.bodyAbove + g_settings.bodyBelow;
+				for (int r = 0; r < rows && n + 1 < 64; ++r) {
+					const float y = -g_settings.bodyBelow + height * (static_cast<float>(r) + 0.5f) / static_cast<float>(rows);
+					const float x = BumperHalfWidthAt(y);
+					a_disc.point[n++] = centre + across * x + worldUp * y;
+					a_disc.point[n++] = centre - across * x + worldUp * y;
+				}
+				for (int c = 0; c < columns && n + 1 < 64; ++c) {
+					const float a = kPi * (static_cast<float>(c) + 0.5f) / static_cast<float>(columns);
+					float       x, y;
+					BumperEdge(a, x, y);  // the top cap, right to left
+					a_disc.point[n++] = centre + across * x + worldUp * y;
+					BumperEdge(a + kPi, x, y);  // the bottom cap, left to right
 					a_disc.point[n++] = centre + across * x + worldUp * y;
 				}
 				for (int r = 0; r < rows && n < 64; ++r) {
-					const float y = rows > 1 ? -g_settings.bodyBelow + (g_settings.bodyAbove + g_settings.bodyBelow) * (static_cast<float>(r) + 0.5f) / static_cast<float>(rows) : 0.0f;
+					const float y = -g_settings.bodyBelow + height * (static_cast<float>(r) + 0.5f) / static_cast<float>(rows);
 					for (int c = 0; c < columns && n < 64; ++c) {
 						const float x = columns > 1 ? -w + 2.0f * w * (static_cast<float>(c) + 0.5f) / static_cast<float>(columns) : 0.0f;
 						if (InBumper(x, y)) {
@@ -326,16 +308,18 @@ namespace mcc::collision
 					a_disc.point[n++] = centre - across * x;
 				}
 			} else {
-				// A level disc at the middle: points round it, a few inside,
-				// and the cross of side points along and across the eye's
-				// direction.
+				// A level disc at the middle: highPoints round it, a few
+				// inside, and the cross of side points along and across the
+				// eye's direction.
 				const float radius = w * g_settings.highScale;
+				const int   highPoints = std::clamp(g_settings.highPoints, 4, 16);
 				for (int i = 0; i < 32; ++i) {
 					const float a = static_cast<float>(i) * (2.0f * kPi / 32.0f);
 					a_disc.outline[i] = centre + (facing * std::cos(a) + across * std::sin(a)) * radius;
-					if (i % 4 == 0 && n < 64) {
-						a_disc.point[n++] = a_disc.outline[i];  // 8 round the edge
-					}
+				}
+				for (int i = 0; i < highPoints && n < 64; ++i) {
+					const float a = static_cast<float>(i) * (2.0f * kPi / static_cast<float>(highPoints));
+					a_disc.point[n++] = centre + (facing * std::cos(a) + across * std::sin(a)) * radius;
 				}
 				a_disc.point[n++] = centre;
 				for (int i = 0; i < 4 && n < 64; ++i) {
