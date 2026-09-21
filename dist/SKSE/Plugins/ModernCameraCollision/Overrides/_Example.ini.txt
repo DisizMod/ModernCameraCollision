@@ -14,10 +14,11 @@
 ;   [model:path\to\model.nif]     every base object with that model, the path
 ;                                  as the record has it, case does not matter
 ; with one key:
-;   rule = measure | stop | through
+;   rule = measure | stop | through | fade
 ;     measure: the bumper and the size decide, as for any object
 ;     stop:    always stops the camera
-;     through: never stops it; faded whole
+;     through: never stops it
+;     fade:    never stops it; faded whole, whatever its size
 
 ;[Skyrim.esm|0x29CB0]
 ;rule = stop

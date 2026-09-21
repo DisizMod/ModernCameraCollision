@@ -38,6 +38,7 @@ namespace mcc::settings
 			if (v == "measure" || v == "0") { a_rule = Rule::Measure; return true; }
 			if (v == "stop" || v == "1") { a_rule = Rule::Stop; return true; }
 			if (v == "through" || v == "2") { a_rule = Rule::Through; return true; }
+			if (v == "fade" || v == "3") { a_rule = Rule::Fade; return true; }
 			return false;
 		}
 

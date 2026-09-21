@@ -13,7 +13,8 @@ through `d10dbab`). This is what came out, and why.
 2. **One verdict** for the camera's own hits and the prediction rays' alike:
    - the player's own body: never stops (the engine's to ignore);
    - terrain and ground: always;
-   - a layer set to *through*: never, and the occluder is faded whole;
+   - a layer set to *through*: never;
+   - a layer set to *fade*: never, and the occluder is faded whole;
    - a layer set to *stop*: always;
    - otherwise: stops only when **enough of the disc's rays from the player
      land on it** AND **the shape under the hit is not small**.

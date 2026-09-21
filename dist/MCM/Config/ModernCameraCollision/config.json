@@ -441,7 +441,7 @@
         },
         {
           "type": "text",
-          "text": "Measure: the disc and the size decide. Stop: always stops the camera. Through: never stops it, faded whole."
+          "text": "Measure: the bumper and the size decide. Stop: always stops the camera. Through: never stops it. Fade: never stops it, and the object is faded whole, whatever its size."
         },
         {
           "type": "enum",
@@ -452,12 +452,14 @@
             "options": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ],
             "shortNames": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ]
           }
         },
@@ -471,12 +473,14 @@
             "options": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ],
             "shortNames": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ]
           }
         },
@@ -489,12 +493,14 @@
             "options": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ],
             "shortNames": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ]
           }
         },
@@ -507,12 +513,14 @@
             "options": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ],
             "shortNames": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ]
           }
         },
@@ -525,12 +533,14 @@
             "options": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ],
             "shortNames": [
               "Measure",
               "Stop",
-              "Through"
+              "Through",
+              "Fade"
             ]
           }
         }

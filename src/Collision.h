@@ -23,7 +23,8 @@ namespace mcc::collision
 	// and the prediction rays' alike:
 	//   - the player's own body: never (the engine's to ignore)
 	//   - terrain and ground: always
-	//   - a layer set to "through": never, and the occluder is faded whole
+	//   - a layer set to "through": never
+	//   - a layer set to "fade": never, and the occluder is faded whole
 	//   - a layer set to "stop": always
 	//   - otherwise: only when enough of the disc's rays from the player
 	//     land on the occluder (with hysteresis per reference) AND the
@@ -31,7 +32,8 @@ namespace mcc::collision
 	struct Verdict
 	{
 		bool stops = true;
-		bool whole = false;  // let through by its layer: faded whole
+		bool fades = true;   // a dropped hit fades what is under it; not for a "through" layer
+		bool whole = false;  // faded by its layer: faded whole
 		bool isSmall = false;  // the shape under the hit was small
 		int  cover = -1;     // percent of the disc, -1 when not measured
 	};

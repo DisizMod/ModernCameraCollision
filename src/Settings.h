@@ -14,7 +14,8 @@ namespace mcc::settings
 	{
 		Measure = 0,  // the disc and the size decide
 		Stop = 1,     // always stops the camera
-		Through = 2,  // never stops it; faded whole
+		Through = 2,  // never stops it; not faded
+		Fade = 3,     // never stops it; faded whole, whatever its size
 	};
 
 	struct Values

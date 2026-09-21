@@ -103,7 +103,7 @@ namespace mcc::collision
 				return it->second;
 			}
 			switch (a_layer) {
-			case RE::COL_LAYER::kTrees: return settings::Rule::Through;
+			case RE::COL_LAYER::kTrees: return settings::Rule::Fade;
 			case RE::COL_LAYER::kTerrain:
 			case RE::COL_LAYER::kGround: return settings::Rule::Stop;
 			default: return settings::Rule::Measure;
@@ -436,10 +436,12 @@ namespace mcc::collision
 
 				if (g_verbose) {
 					spdlog::info("  hit {:.3f} cover {}% {}{}{} {}", W(a_point.contact.separatingNormal), verdict.cover,
-						verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", drop ? "DROPPED" : "kept", DescribeCollidable(root));
+						verdict.whole ? "faded by layer " : (!verdict.fades ? "through by layer " : ""), verdict.isSmall ? "small " : "", drop ? "DROPPED" : "kept", DescribeCollidable(root));
 				}
 				if (drop) {
-					dropped.push_back({ ref, at, verdict.whole });
+					if (verdict.fades) {
+						dropped.push_back({ ref, at, verdict.whole });
+					}
 					return;
 				}
 				inner.AddCdPoint(a_point);
@@ -584,9 +586,10 @@ namespace mcc::collision
 		if (const auto* over = settings::Override(a_settings, a_ref)) {
 			rule = *over;
 		}
-		if (rule == settings::Rule::Through) {
+		if (rule == settings::Rule::Through || rule == settings::Rule::Fade) {
 			verdict.stops = false;
-			verdict.whole = true;
+			verdict.fades = rule == settings::Rule::Fade;
+			verdict.whole = rule == settings::Rule::Fade;
 			return verdict;
 		}
 		if (rule == settings::Rule::Stop) {

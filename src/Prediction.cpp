@@ -79,7 +79,7 @@ namespace mcc::prediction
 			const bool stops = verdict.stops;
 			if (collision::Verbose()) {
 				spdlog::info("  prediction ray {} at {:.2f} cover {}% {}{}{} {}", a_name, fraction, verdict.cover,
-					verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", stops ? "COUNTS" : "let through",
+					verdict.whole ? "faded by layer " : (!verdict.fades ? "through by layer " : ""), verdict.isSmall ? "small " : "", stops ? "COUNTS" : "let through",
 					collision::Describe(output.rootCollidable));
 			}
 			collision::Record(collision::RayKind::Prediction, start, a_to, output, stops, false);
