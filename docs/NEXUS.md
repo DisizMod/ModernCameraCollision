@@ -78,6 +78,14 @@ Nesky's "50 Camera Mistakes" (GDC 2014).
 
 Permissions: open — modify and redistribute under the same licence (GPL-3.0).
 
+**Credits**
+
+- alandtse, CharmedBaryon and Ryan-rsm-McKenzie — CommonLibSSE-NG / CommonLibSSE
+- the SKSE team — SKSE64
+- meh321 — Address Library for SKSE Plugins
+- Exit-9B — MCM Helper
+- the SkyUI team — SkyUI
+
 ---
 
 Files: `ModernCameraCollision-1.0.0.zip` (from `docs/package.ps1`).
