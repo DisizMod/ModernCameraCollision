@@ -70,7 +70,7 @@ namespace mcc::collision
 			return it != g_layerNames.end() ? it->second : unknown;
 		}
 
-		std::string Describe(const RE::hkpCollidable* a_collidable)
+		std::string DescribeCollidable(const RE::hkpCollidable* a_collidable)
 		{
 			if (!a_collidable) {
 				return "null";
@@ -416,7 +416,7 @@ namespace mcc::collision
 
 				if (g_verbose) {
 					spdlog::info("  hit {:.3f} cover {}% {}{}{} {}", W(a_point.contact.separatingNormal), verdict.cover,
-						verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", drop ? "DROPPED" : "kept", Describe(root));
+						verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", drop ? "DROPPED" : "kept", DescribeCollidable(root));
 				}
 				if (drop) {
 					dropped.push_back({ ref, at, verdict.whole });
@@ -588,6 +588,8 @@ namespace mcc::collision
 	const RE::NiPoint3& CastFrom() { return g_castFrom; }
 	const RE::NiPoint3& CastTo() { return g_castTo; }
 	float               CastLength() { return g_castLength; }
+	bool                Verbose() { return g_verbose; }
+	std::string         Describe(const RE::hkpCollidable* a_collidable) { return DescribeCollidable(a_collidable); }
 
 	void CastRay(const RE::hkpWorld* a_world, const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, float a_scale,
 		RE::hkpWorldRayCastOutput& a_output)

@@ -75,9 +75,12 @@ namespace mcc::whiskers
 
 			// Judged with a disc of its own, from the whisker's far end: where
 			// the camera would be at its angle.
-			const bool stops = collision::Judge(a_world, output.rootCollidable, ref, at, a_to, a_scale, true, a_settings).stops;
-			if (a_settings.logVerbose) {
-				spdlog::debug("  whisker {} at {:.2f}: {}", a_name, fraction, stops ? "counts" : "let through");
+			const auto verdict = collision::Judge(a_world, output.rootCollidable, ref, at, a_to, a_scale, true, a_settings);
+			const bool stops = verdict.stops;
+			if (collision::Verbose()) {
+				spdlog::info("  whisker {} at {:.2f} cover {}% {}{}{} {}", a_name, fraction, verdict.cover,
+					verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", stops ? "COUNTS" : "let through",
+					collision::Describe(output.rootCollidable));
 			}
 			collision::Record(collision::RayKind::Whisker, start, a_to, output, stops, false);
 			return stops ? fraction : 1.0f;

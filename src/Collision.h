@@ -47,6 +47,10 @@ namespace mcc::collision
 	[[nodiscard]] const RE::NiPoint3& CastTo();
 	[[nodiscard]] float               CastLength();
 
+	// Whether this update's judgements are being logged, and a line for one.
+	[[nodiscard]] bool        Verbose();
+	[[nodiscard]] std::string Describe(const RE::hkpCollidable* a_collidable);
+
 	// A ray with the camera's own filter, in game units.
 	void CastRay(const RE::hkpWorld* a_world, const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, float a_scale,
 		RE::hkpWorldRayCastOutput& a_output);
