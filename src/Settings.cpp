@@ -53,6 +53,8 @@ namespace mcc::settings
 			f("Rules", "fBodyBelow", a_values.bodyBelow);
 			i("Rules", "iBodyColumns", a_values.bodyColumns);
 			i("Rules", "iBodyRows", a_values.bodyRows);
+			f("Rules", "fSideReach", a_values.sideReach);
+			i("Rules", "iSidePoints", a_values.sidePoints);
 			i("Rules", "iDropBelowPercent", a_values.dropBelowPercent);
 			f("Rules", "fPartDistance", a_values.partDistance);
 
@@ -139,6 +141,7 @@ namespace mcc::settings
 		// Kept sane whatever the files say.
 		values.bodyColumns = std::clamp(values.bodyColumns, 3, 7);
 		values.bodyRows = std::clamp(values.bodyRows, 3, 9);
+		values.sidePoints = std::clamp(values.sidePoints, 0, 6);
 		values.dropBelowPercent = std::clamp(values.dropBelowPercent, 0, 100);
 		values.fadeAlpha = std::clamp(values.fadeAlpha, 0.0f, 1.0f);
 		values.easeInSecs = (std::max)(values.easeInSecs, 0.005f);

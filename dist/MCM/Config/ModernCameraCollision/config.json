@@ -169,6 +169,31 @@
         },
         {
           "type": "slider",
+          "text": "Side line: reach past the body's edge",
+          "id": "fSideReach:Rules",
+          "help": "A horizontal line of samples at the pivot's height, across the camera's line, reaching this far past the body on both sides: what is beside the player. A pole covers the body and not the sides; a wall covers both.",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0,
+            "max": 400,
+            "step": 10,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "Side line: samples per side",
+          "id": "iSidePoints:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingInt",
+            "min": 0,
+            "max": 6,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
           "text": "Dropped when the occluder takes less than",
           "id": "iDropBelowPercent:Rules",
           "help": "Percent of the disc's samples. Once dropped, an occluder needs this plus 12 points to be kept again; once kept, 25 under it to be dropped.",

@@ -38,6 +38,11 @@ namespace mcc::settings
 		float bodyBelow = 100.0f;
 		int   bodyColumns = 5;       // sample grid across the body...
 		int   bodyRows = 5;          // ... and down it; points outside the stadium are left out
+		// A horizontal line of samples at the pivot's height, across the
+		// camera's line, reaching out past the body on both sides: what is
+		// beside the player, for telling a pole from a wall.
+		float sideReach = 120.0f;    // how far past the body's edge the line reaches
+		int   sidePoints = 3;        // samples per side on it
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
 		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 

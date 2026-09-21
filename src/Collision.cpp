@@ -296,6 +296,15 @@ namespace mcc::collision
 					a_disc.point[n++] = centre + u * x + v * y;
 				}
 			}
+			// The side line: at the pivot's height, out past the body's edge
+			// on both sides.
+			const int   sidePoints = std::clamp(g_settings.sidePoints, 0, 6);
+			const float sideReach = (std::max)(g_settings.sideReach, 0.0f);
+			for (int i = 1; i <= sidePoints && n + 1 < 64; ++i) {
+				const float x = w + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
+				a_disc.point[n++] = centre + u * x;
+				a_disc.point[n++] = centre - u * x;
+			}
 			a_disc.samples = n;
 
 			// Every hit along a sample's ray, from the wanted camera position
