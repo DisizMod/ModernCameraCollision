@@ -178,6 +178,45 @@ namespace mcc::collision
 			a_y = capY + w * sn;
 		}
 
+		// A point of the bumper's edge at distance a_t along its perimeter,
+		// from the right side's middle going up, in (across, up); and the
+		// perimeter's length.
+		float BumperPerimeter()
+		{
+			const float w = g_settings.bodyHalfWidth;
+			const float top = (std::max)(g_settings.bodyAbove - w, 0.0f);
+			const float bottom = (std::max)(g_settings.bodyBelow - w, 0.0f);
+			return 2.0f * (top + bottom) + 2.0f * kPi * w;
+		}
+
+		void BumperAt(float a_t, float& a_x, float& a_y)
+		{
+			const float w = g_settings.bodyHalfWidth;
+			const float top = (std::max)(g_settings.bodyAbove - w, 0.0f);
+			const float bottom = (std::max)(g_settings.bodyBelow - w, 0.0f);
+			const float cap = kPi * w;  // a half-circle
+			float       t = a_t;
+			if (t < top) {  // right side, up
+				a_x = w; a_y = t; return;
+			}
+			t -= top;
+			if (t < cap) {  // top cap, right to left
+				const float a = t / w;
+				a_x = w * std::cos(a); a_y = top + w * std::sin(a); return;
+			}
+			t -= cap;
+			if (t < top + bottom) {  // left side, down
+				a_x = -w; a_y = top - t; return;
+			}
+			t -= top + bottom;
+			if (t < cap) {  // bottom cap, left to right
+				const float a = kPi + t / w;
+				a_x = w * std::cos(a); a_y = -bottom + w * std::sin(a); return;
+			}
+			t -= cap;  // right side, up to the middle
+			a_x = w; a_y = -bottom + t;
+		}
+
 		bool InBumper(float a_x, float a_y)
 		{
 			const float w = g_settings.bodyHalfWidth;
@@ -255,15 +294,22 @@ namespace mcc::collision
 			int                n = 0;
 
 			if (!high) {
-				// The edge, sampled and drawn; a grid of a few points inside;
-				// the side line at the pivot's height.
+				// The edge, drawn; sampled evenly along its perimeter at the
+				// grid's own spacing, so edge and inside are one pattern; a
+				// grid of a few points inside; the side line at the pivot's
+				// height.
 				for (int i = 0; i < 32; ++i) {
 					float x, y;
 					BumperEdge(static_cast<float>(i) * (2.0f * kPi / 32.0f), x, y);
 					a_disc.outline[i] = centre + across * x + worldUp * y;
-					if (i % 2 == 0 && n < 64) {
-						a_disc.point[n++] = a_disc.outline[i];  // 16 on the edge
-					}
+				}
+				const float spacing = (std::min)(2.0f * w / static_cast<float>(columns), (g_settings.bodyAbove + g_settings.bodyBelow) / static_cast<float>(rows));
+				const float perimeter = BumperPerimeter();
+				const int   edgePoints = std::clamp(static_cast<int>(perimeter / (std::max)(spacing, 1.0f)), 8, 32);
+				for (int i = 0; i < edgePoints && n < 64; ++i) {
+					float x, y;
+					BumperAt(perimeter * static_cast<float>(i) / static_cast<float>(edgePoints), x, y);
+					a_disc.point[n++] = centre + across * x + worldUp * y;
 				}
 				for (int r = 0; r < rows && n < 64; ++r) {
 					const float y = rows > 1 ? -g_settings.bodyBelow + (g_settings.bodyAbove + g_settings.bodyBelow) * (static_cast<float>(r) + 0.5f) / static_cast<float>(rows) : 0.0f;
