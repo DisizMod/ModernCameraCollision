@@ -73,7 +73,10 @@ namespace mcc::collision
 	struct DiscView
 	{
 		RE::NiPoint3 at;
-		RE::NiPoint3 outline[32];  // the body's stadium, for drawing
+		// The body's capsule, for drawing: rings at heights, each a ring of
+		// 16 points, up to 9 of them.
+		int          rings;
+		RE::NiPoint3 ring[9][16];
 		bool         dropped;
 		bool         forWhisker;
 		int          samples;

@@ -104,7 +104,7 @@
         },
         {
           "type": "text",
-          "text": "A stadium (a rectangle with rounded ends) standing upright about the pivot, facing the camera. Each sample is reached by a ray from where the camera would be; the occluder on that ray, near the point the camera is about to hit, blocks the sample."
+          "text": "A capsule standing in the world about the pivot -- half-width as its radius, the caps at the heights above and below -- so it stays where the player is whatever the camera does. Each sample on the half of its surface facing the camera is reached by a ray from where the camera would be; the occluder on that ray, near the point the camera is about to hit, blocks the sample."
         },
         {
           "type": "slider",
@@ -144,9 +144,9 @@
         },
         {
           "type": "slider",
-          "text": "Sample columns across the body",
+          "text": "Sample columns round the body",
           "id": "iBodyColumns:Rules",
-          "help": "The grid of rays across and down the body; points outside the stadium are left out. Columns times rows is the number of rays per measured hit.",
+          "help": "Rays round the half of the capsule that faces the camera, at each of the rows down it. Columns times rows is the number of rays per measured hit.",
           "valueOptions": {
             "sourceType": "ModSettingInt",
             "min": 3,

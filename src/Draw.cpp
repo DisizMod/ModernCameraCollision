@@ -206,8 +206,10 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 			if (a_settings.drawDiscs) {
 				for (const auto& disc : a_frame.discs) {
 					const Colour colour = disc.forWhisker ? (disc.dropped ? kPurple : kPink) : (disc.dropped ? kOrange : kYellow);
-					for (int i = 0; i < 32; ++i) {
-						Line(disc.outline[i], disc.outline[(i + 1) % 32], colour);
+					for (int r = 0; r < disc.rings; ++r) {
+						for (int i = 0; i < 16; ++i) {
+							Line(disc.ring[r][i], disc.ring[r][(i + 1) % 16], colour);
+						}
 					}
 					for (int i = 0; i < disc.samples; ++i) {
 						Mark(disc.point[i], disc.hit[i] ? colour : kGrey, disc.hit[i] ? 4.0f : 2.0f);
