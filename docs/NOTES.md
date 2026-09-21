@@ -76,15 +76,6 @@ through `d10dbab`). This is what came out, and why.
   update by its collidable's layer, L_CAMERA (39). CommonLib declares
   `hkpCdPointCollector`'s dtor/`Reset` without defining them: the collector
   ABI is laid out by hand.
-- SmoothCam: it lets the engine's `Update` run, then places the camera
-  itself, sweeping with the engine's camera phantom (L_CAMERA) through
-  `CameraCaster` -> `bhkWorld` -> `hkpWorld::LinearCast`. The cast hook is
-  gated by that layer alone, so its sweeps get the same collector -- small
-  things dropped, layer rules, overrides, fade -- and it positions from the
-  survivors. With `SmoothCam.dll` loaded (checked at kPostPostLoad) the
-  motion and the prediction rays stand down. The debug frame is published at
-  the start of the next update, so a sweep made after the update's pass is
-  drawn too.
 - Runtimes: SE 1.5.97 is where it was built and tested; AE 1.6.x and 1.7.x
   (Steam is 1.7.104; SKSE 2.3.1; Address Library "format 5") load through
   the same ids. VR is refused. SmoothCam's `CameraCaster` (SE 32270 / AE

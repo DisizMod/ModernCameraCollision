@@ -39,20 +39,7 @@ namespace
 
 	void OnMessage(SKSE::MessagingInterface::Message* a_message)
 	{
-		if (!a_message) {
-			return;
-		}
-		if (a_message->type == SKSE::MessagingInterface::kPostPostLoad) {
-			// Every plugin is loaded by now. SmoothCam places the camera
-			// itself: the rules and the fade apply to its sweeps, the motion
-			// and the prediction rays leave it to it.
-			if (GetModuleHandleW(L"SmoothCam.dll")) {
-				spdlog::info("SmoothCam is loaded: the rules and the fade apply to its sweeps; the motion and the prediction rays stand down");
-				mcc::collision::StandDown(true);
-			}
-			return;
-		}
-		if (a_message->type != SKSE::MessagingInterface::kDataLoaded) {
+		if (!a_message || a_message->type != SKSE::MessagingInterface::kDataLoaded) {
 			return;
 		}
 		spdlog::info("data loaded");

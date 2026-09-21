@@ -35,10 +35,9 @@ namespace mcc::collision
 			return fn.get();
 		}
 
-		// The camera's sweeps are known by the layer they cast on, whoever
-		// makes them -- the engine inside the camera's update, or a camera
-		// mod after it. Only the main thread makes them.
-		bool g_standDown = false;  // SmoothCam owns the camera: no motion, no prediction rays
+		// The camera's collision runs on one thread; casts from other threads
+		// (AI, projectiles) must not be mistaken for it.
+		thread_local bool g_inCameraCollision = false;
 
 		std::atomic<std::uint32_t> g_updates{ 0 };
 		bool                       g_verbose = false;
@@ -476,6 +475,8 @@ namespace mcc::collision
 		};
 		static_assert(offsetof(ProxyCollector, earlyOutDistance) == offsetof(RE::hkpCdPointCollector, earlyOutDistance));
 
+		std::vector<ProxyCollector::Dropped> g_dropped;  // this update's
+
 		// --- the hooks ----------------------------------------------------------------
 		//
 		// The camera state's Update: the engine's, which sweeps the camera
@@ -502,30 +503,31 @@ namespace mcc::collision
 			const auto n = g_updates.fetch_add(1, std::memory_order_relaxed);
 			g_verbose = g_settings.logVerbose && (n < 10 || (n % 60) == 0);
 
-			// What was recorded since the last update is published now: the
-			// engine's sweep and this pass, and any sweep a camera mod made
-			// after them.
+			g_dropped.clear();
+			g_building = Frame{};
+			g_building.update = n;
+
+			g_inCameraCollision = true;
+			a_original(a_this, a_next);
+			g_inCameraCollision = false;
+
+			for (const auto& dropped : g_dropped) {
+				fade::Around(dropped.ref, dropped.at, dropped.whole, g_settings);
+			}
+			fade::Update(g_settings);
+			ForgetOldDecisions();
+			motion::Apply(state, g_castThisUpdate, g_settings);
+
 			if (Recording()) {
+				g_building.rays.push_back({ g_castFrom, g_castTo, state->translation, true, true, false, RayKind::Cast });
 				g_building.bounds = fade::Bounds();
 			}
 			{
 				std::lock_guard<std::mutex> lock(g_frameMutex);
 				g_frame = std::move(g_building);
 				g_building = Frame{};
-				g_building.update = n;
 			}
 			g_castThisUpdate = false;
-
-			a_original(a_this, a_next);
-
-			fade::Update(g_settings);
-			ForgetOldDecisions();
-			if (!g_standDown) {
-				motion::Apply(state, g_castThisUpdate, g_settings);
-			}
-			if (Recording() && g_castThisUpdate) {
-				g_building.rays.push_back({ g_castFrom, g_castTo, state->translation, true, true, false, RayKind::Cast });
-			}
 
 			if (g_verbose) {
 				spdlog::info("update {} -> camera at ({:.1f}, {:.1f}, {:.1f}), held at {:.2f} of the cast", n,
@@ -539,15 +541,13 @@ namespace mcc::collision
 			CameraUpdate(a_this, a_next, g_originalUpdate[N]);
 		}
 
-		// The camera's sweep: cast by the camera's own collidable, on its own
-		// layer, from wherever -- the engine's update, or a camera mod's own
-		// placing after it. No other cast is touched. What the sweep drops
-		// is faded here and now, so a sweep made after the update's pass is
-		// not left out.
+		// The camera's sweep: during a hooked update, and cast by the
+		// camera's own collidable, on its own layer -- no other cast the
+		// update might make is touched.
 		void LinearCastHook(const RE::hkpWorld* a_world, const RE::hkpCollidable* a_colA, const RE::hkpLinearCastInput& a_input,
 			RE::hkpCdPointCollector& a_castCollector, RE::hkpCdPointCollector* a_startCollector)
 		{
-			if (!a_colA || a_colA->GetCollisionLayer() != RE::COL_LAYER::kCameraPick || !g_settings.enabled) {
+			if (!g_inCameraCollision || !a_colA || a_colA->GetCollisionLayer() != RE::COL_LAYER::kCameraPick) {
 				g_originalLinearCast(a_world, a_colA, a_input, a_castCollector, a_startCollector);
 				return;
 			}
@@ -568,11 +568,9 @@ namespace mcc::collision
 			proxy.world = a_world;
 			g_originalLinearCast(a_world, a_colA, a_input, reinterpret_cast<RE::hkpCdPointCollector&>(proxy), a_startCollector);
 			a_castCollector.earlyOutDistance = proxy.earlyOutDistance;
-			for (const auto& dropped : proxy.dropped) {
-				fade::Around(dropped.ref, dropped.at, dropped.whole, g_settings);
-			}
+			g_dropped = std::move(proxy.dropped);
 
-			if (g_castThisUpdate && !g_standDown) {
+			if (g_castThisUpdate) {
 				prediction::Cast(a_world, scale, g_settings);
 			}
 		}
@@ -679,11 +677,6 @@ namespace mcc::collision
 			view.hitAt = a_from + (a_to - a_from) * a_output.hitFraction;
 		}
 		g_building.rays.push_back(view);
-	}
-
-	void StandDown(bool a_standDown)
-	{
-		g_standDown = a_standDown;
 	}
 
 	bool Install()
