@@ -1,0 +1,94 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Modern Camera Collision</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; background: #0b0d10; } .card { zoom: 2; }
+  .card { position: relative; width: 1280px; height: 720px; overflow: hidden;
+    background: radial-gradient(1200px 600px at 20% 110%, #1a2230 0%, #0b0d10 60%),
+                linear-gradient(180deg, #0e1116 0%, #0b0d10 100%); font-family: "Cormorant Garamond", Georgia, serif; color: #e8e2d4; }
+  .grain { position: absolute; inset: 0; opacity: .08; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.6'/></svg>"); }
+  .title { position: absolute; left: 72px; top: 84px; font-family: Cinzel, serif; font-weight: 700; font-size: 64px; letter-spacing: 1px; line-height: 1.05; color: #efe6d2; text-shadow: 0 2px 20px rgba(0,0,0,.6); }
+  .title small { display: block; font-size: 22px; font-weight: 600; letter-spacing: 6px; color: #b89a5c; margin-bottom: 14px; }
+  .tag { position: absolute; left: 76px; top: 258px; font-size: 27px; font-weight: 500; line-height: 1.5; color: #b8b1a2; max-width: 520px; }
+  .tag b { color: #e8e2d4; font-weight: 500; }
+  .foot { position: absolute; left: 76px; bottom: 56px; font-size: 17px; font-weight: 600; letter-spacing: 3px; color: #7f7a70; text-transform: uppercase; }
+  .foot span { color: #b89a5c; }
+  svg { position: absolute; left: 0; top: 40px; overflow: visible; }
+</style></head>
+<body><div class="card"><div class="grain"></div>
+<div class="title"><small>SKSE · MCM</small>Modern<br>Camera Collision</div>
+<div class="tag">The third-person camera <b>sees around</b> beams, posts and pots, <b>stops</b> at walls and floors, <b>eases</b> in and out, and <b>fades</b> what it is let through.</div>
+<div class="foot">Skyrim Special Edition <span>·</span> SE 1.5.97 <span>·</span> AE</div>
+
+<svg width="1280" height="640" viewBox="-660 0 1280 640" fill="none">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a3f47"/><stop offset="1" stop-color="#22262c"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a313b" stop-opacity=".55"/><stop offset=".6" stop-color="#2a313b" stop-opacity="0"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e2c37a" stop-opacity=".55"/><stop offset="1" stop-color="#e2c37a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <!-- floor: fades out toward the text -->
+  <linearGradient id="floorX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity="1"/></linearGradient>
+  <mask id="floorMask"><rect x="-660" y="0" width="1280" height="640" fill="url(#floorX)"/></mask>
+  <g mask="url(#floorMask)">
+    <path d="M-660 540 L620 400 L620 640 L-660 640 Z" fill="url(#floor)"/>
+    <path d="M-660 544 L620 400" stroke="#3a424d" stroke-width="2"/>
+  </g>
+  <!-- wall (stops) -->
+  <path d="M470 60 L620 30 L620 400 L470 430 Z" fill="url(#wall)"/>
+  <path d="M470 60 L470 430" stroke="#4a515b" stroke-width="2"/>
+  <!-- pole (ignored, faded) -->
+  <g opacity=".45">
+    <rect x="352" y="150" width="16" height="300" rx="3" fill="#6b5a3e"/>
+    <rect x="344" y="142" width="32" height="12" rx="3" fill="#7a6847"/>
+  </g>
+  <!-- player pivot + bumper (stadium) -->
+  <g transform="translate(150 330)">
+    <ellipse cx="0" cy="118" rx="46" ry="10" fill="#000" opacity=".5"/>
+    <rect x="-40" y="-110" width="80" height="230" rx="40" fill="none" stroke="#e2c37a" stroke-width="2.5" stroke-dasharray="6 6"/>
+    <!-- sample points -->
+    <g fill="#e2c37a">
+      <circle cx="-20" cy="-60" r="3.2"/><circle cx="20" cy="-60" r="3.2"/>
+      <circle cx="-20" cy="5" r="3.2"/><circle cx="20" cy="5" r="3.2"/>
+      <circle cx="-20" cy="70" r="3.2"/><circle cx="20" cy="70" r="3.2"/>
+      <circle cx="0" cy="-110" r="3.2"/><circle cx="0" cy="120" r="3.2"/>
+      <circle cx="-40" cy="5" r="3.2"/><circle cx="40" cy="5" r="3.2"/>
+    </g>
+    <!-- side line -->
+    <g fill="#e2c37a" opacity=".8">
+      <circle cx="-64" cy="5" r="2.6"/><circle cx="-88" cy="5" r="2.6"/><circle cx="-112" cy="5" r="2.6"/>
+      <circle cx="64" cy="5" r="2.6"/><circle cx="88" cy="5" r="2.6"/><circle cx="112" cy="5" r="2.6"/>
+    </g>
+    <!-- figure -->
+    <circle cx="0" cy="-78" r="17" fill="#c9c2b3"/>
+    <path d="M0 -58 L0 30 M0 -40 L-28 10 M0 -40 L28 6 M0 30 L-18 96 M0 30 L20 96" stroke="#c9c2b3" stroke-width="9" stroke-linecap="round"/>
+  </g>
+  <!-- camera -->
+  <g transform="translate(540 236)">
+    <circle cx="0" cy="0" r="70" fill="url(#glow)"/>
+    <rect x="-26" y="-16" width="52" height="34" rx="6" fill="#e8e2d4"/>
+    <path d="M26 -6 L44 -16 L44 20 L26 10 Z" fill="#e8e2d4"/>
+    <circle cx="-8" cy="1" r="7" fill="#0b0d10"/>
+  </g>
+  <!-- rays: camera -> samples (grey through the pole, yellow to the player, red stop at the wall) -->
+  <g stroke-width="1.6" stroke-linecap="round">
+    <line x1="514" y1="240" x2="150" y2="220" stroke="#e2c37a" opacity=".85"/>
+    <line x1="514" y1="240" x2="170" y2="335" stroke="#e2c37a" opacity=".85"/>
+    <line x1="514" y1="240" x2="150" y2="450" stroke="#e2c37a" opacity=".85"/>
+    <line x1="514" y1="240" x2="130" y2="270" stroke="#e2c37a" opacity=".85"/>
+    <line x1="514" y1="240" x2="262" y2="335" stroke="#e2c37a" opacity=".85"/>
+    <line x1="514" y1="240" x2="360" y2="300" stroke="#8b8f96" opacity=".7" stroke-dasharray="4 5"/>
+    <line x1="514" y1="240" x2="360" y2="380" stroke="#8b8f96" opacity=".7" stroke-dasharray="4 5"/>
+    <!-- prediction rays -->
+    <line x1="150" y1="335" x2="470" y2="180" stroke="#d9634a" opacity=".9"/>
+    <line x1="150" y1="335" x2="600" y2="330" stroke="#d9634a" opacity=".9"/>
+    <line x1="150" y1="335" x2="520" y2="120" stroke="#5fbf7a" opacity=".9"/>
+  </g>
+  <circle cx="470" cy="180" r="5" fill="#d9634a"/><circle cx="600" cy="330" r="5" fill="#d9634a"/>
+  <!-- labels -->
+  <g font-family="Cormorant Garamond" font-size="16" font-weight="600" fill="#9a948a" letter-spacing="1.5">
+    <text x="322" y="128">IGNORED · FADED</text>
+    <text x="478" y="470">STOPS</text>
+    <text x="88" y="520">BUMPER · SAMPLES</text>
+  </g>
+</svg>
+</div></body></html>
