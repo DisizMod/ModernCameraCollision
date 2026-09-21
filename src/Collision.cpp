@@ -265,6 +265,7 @@ namespace mcc::collision
 			const int          rows = std::clamp(g_settings.bodyRows, 1, 9);
 			const float        w = g_settings.bodyHalfWidth;
 			const int          sidePoints = std::clamp(g_settings.sidePoints, 0, 6);
+			const int          sideRows = std::clamp(g_settings.sideRows, 1, 9);
 			const float        sideReach = (std::max)(g_settings.sideReach, 0.0f);
 			int                n = 0;
 
@@ -302,10 +303,15 @@ namespace mcc::collision
 						}
 					}
 				}
-				for (int i = 1; i <= sidePoints && n + 1 < 64; ++i) {
-					const float x = w + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
-					a_disc.point[n++] = centre + across * x;
-					a_disc.point[n++] = centre - across * x;
+				// The side lines: sideRows of them, at heights spread over the
+				// bumper as the grid's rows are; one is at the middle.
+				for (int r = 0; r < sideRows; ++r) {
+					const float y = -g_settings.bodyBelow + height * (static_cast<float>(r) + 0.5f) / static_cast<float>(sideRows);
+					for (int i = 1; i <= sidePoints && n + 1 < 64; ++i) {
+						const float x = BumperHalfWidthAt(y) + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
+						a_disc.point[n++] = centre + across * x + worldUp * y;
+						a_disc.point[n++] = centre - across * x + worldUp * y;
+					}
 				}
 			} else {
 				// A level disc at the middle: highPoints round it, a few

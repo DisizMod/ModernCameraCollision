@@ -43,6 +43,7 @@ namespace mcc::settings
 		// beside the player, for telling a pole from a wall.
 		float sideReach = 120.0f;    // how far past the body's edge the line reaches
 		int   sidePoints = 3;        // samples per side on it
+		int   sideRows = 1;          // how many such lines, spread over the bumper's height as the grid's rows are
 		// From a high (or low) angle -- the eye more than highAngle above
 		// or below level -- the body is seen end-on: the samples cover only
 		// the cap that faces the eye, at highScale of the width, and the
