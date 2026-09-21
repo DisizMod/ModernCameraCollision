@@ -67,15 +67,21 @@ through `d10dbab`). This is what came out, and why.
 
 ## Engine facts
 
-- Hooks: the camera states' virtual `Update` (vtable slot 3 on SE/AE, 4 on
-  VR) on `ThirdPersonState`, `HorseCameraState`, `DragonCameraState` and
-  `BleedoutCameraState` — the way SmoothCam does it, since
-  `ThirdPersonState::UpdateCameraCollision` (SE 49980) has no published AE
-  id; `hkpWorld::LinearCast` 60554 / AE 61402; `hkpWorld::CastRay` 60551 /
-  AE 61399. The camera's own sweep is told from any other cast during the
-  update by its collidable's layer, L_CAMERA (39). CommonLib declares
-  `hkpCdPointCollector`'s dtor/`Reset` without defining them: the collector
-  ABI is laid out by hand.
+- Hooks: `ThirdPersonState::UpdateCameraCollision` SE 49980 / AE 50911;
+  `hkpWorld::LinearCast` 60554 / AE 61402; `hkpWorld::CastRay` 60551 / AE
+  61399. The AE 50911 is not in CommonLib: it was found in 1.7.104 as the
+  one call `ThirdPersonState::Update` (vtable slot 3, `0x8FD590`) makes
+  that reaches `LinearCast` (50911 → 50832 → 33007, SmoothCam's
+  "CameraCaster" → `LinearCast`). The hook must be there, not on `Update`:
+  right after that call, `Update` writes the camera node's local transform
+  from the state's translation, so a translation written after `Update`
+  reaches the node a frame late and the engine has overwritten it by then
+  — that was the lost easing when the hook sat on `Update`. The camera's
+  own sweep is also told from any other cast by its collidable's layer,
+  L_CAMERA (39). CommonLib declares `hkpCdPointCollector`'s dtor/`Reset`
+  without defining them: the collector ABI is laid out by hand.
+- The 1.5.97 `SkyrimSE.exe` on disk is Steam-DRM wrapped (`.bind` section):
+  its code cannot be read statically; 1.7.104's can.
 - Runtimes: SE 1.5.97 is where it was built and tested; AE 1.6.x and 1.7.x
   (Steam is 1.7.104; SKSE 2.3.1; Address Library "format 5") load through
   the same ids. VR is refused. SmoothCam's `CameraCaster` (SE 32270 / AE

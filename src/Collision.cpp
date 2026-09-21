@@ -10,22 +10,24 @@ namespace mcc::collision
 {
 	namespace
 	{
-		// The engine functions, SE and AE ids (CommonLibSSE-NG's own pairs
-		// for the Havok ones). The camera's update is taken from the camera
-		// states' vtables instead of ThirdPersonState::UpdateCameraCollision,
-		// which has no published AE id: every state that positions the
-		// third-person camera -- on foot, on a horse, on a dragon, bleeding
-		// out -- has its Update hooked, and the camera's own sweep is told
-		// from any other by the layer it casts on.
-		constexpr REL::RelocationID kLinearCastID{ 60554, 61402 };  // hkpWorld::LinearCast
-		constexpr REL::RelocationID kCastRayID{ 60551, 61399 };     // hkpWorld::CastRay
+		// The engine functions, SE and AE ids. UpdateCameraCollision's AE id
+		// is not in CommonLib; 50911 was found in 1.7.104 as the one call
+		// ThirdPersonState::Update makes that leads to hkpWorld::LinearCast
+		// (through 50832 and 33007, SmoothCam's "CameraCaster"), right
+		// before Update writes the camera node's transform -- which is why
+		// the hook must sit here and not on Update: what is written to the
+		// state's translation after Update has already gone to the node.
+		constexpr REL::RelocationID kUpdateCameraCollisionID{ 49980, 50911 };  // ThirdPersonState::UpdateCameraCollision
+		constexpr REL::RelocationID kLinearCastID{ 60554, 61402 };             // hkpWorld::LinearCast
+		constexpr REL::RelocationID kCastRayID{ 60551, 61399 };                // hkpWorld::CastRay
 
-		using CameraUpdateFn = void(RE::TESCameraState*, RE::BSTSmartPointer<RE::TESCameraState>&);
+		using UpdateCameraCollisionFn = void(RE::ThirdPersonState*);
 		using LinearCastFn = void(const RE::hkpWorld*, const RE::hkpCollidable*, const RE::hkpLinearCastInput&,
 			RE::hkpCdPointCollector&, RE::hkpCdPointCollector*);
 		using CastRayFn = void(const RE::hkpWorld*, const RE::hkpWorldRayCastInput&, RE::hkpWorldRayCastOutput&);
 
-		LinearCastFn* g_originalLinearCast = nullptr;
+		UpdateCameraCollisionFn* g_originalUpdate = nullptr;
+		LinearCastFn*            g_originalLinearCast = nullptr;
 
 		// The engine's ray cast, called as is; taken inside a function so no
 		// address is resolved during static initialisation.
@@ -479,25 +481,14 @@ namespace mcc::collision
 
 		// --- the hooks ----------------------------------------------------------------
 		//
-		// The camera state's Update: the engine's, which sweeps the camera
-		// and places it, then this mod's pass over what the sweep found. One
-		// hook per state vtable, each keeping the original it replaced.
-		enum CameraState : int
+		// The engine's camera collision -- the sweep and the placing -- then
+		// this mod's pass over what the sweep found, before Update goes on
+		// to write the camera node from the state's translation.
+		void UpdateCameraCollisionHook(RE::ThirdPersonState* a_this)
 		{
-			kThirdPerson,
-			kHorse,
-			kDragon,
-			kBleedout,
-			kStates
-		};
-		CameraUpdateFn* g_originalUpdate[kStates] = {};
-
-		void CameraUpdate(RE::TESCameraState* a_this, RE::BSTSmartPointer<RE::TESCameraState>& a_next, CameraUpdateFn* a_original)
-		{
-			auto* state = static_cast<RE::ThirdPersonState*>(a_this);
 			g_settings = settings::Current();
 			if (!g_settings.enabled) {
-				a_original(a_this, a_next);
+				g_originalUpdate(a_this);
 				return;
 			}
 			const auto n = g_updates.fetch_add(1, std::memory_order_relaxed);
@@ -508,7 +499,7 @@ namespace mcc::collision
 			g_building.update = n;
 
 			g_inCameraCollision = true;
-			a_original(a_this, a_next);
+			g_originalUpdate(a_this);
 			g_inCameraCollision = false;
 
 			for (const auto& dropped : g_dropped) {
@@ -516,10 +507,10 @@ namespace mcc::collision
 			}
 			fade::Update(g_settings);
 			ForgetOldDecisions();
-			motion::Apply(state, g_castThisUpdate, g_settings);
+			motion::Apply(a_this, g_castThisUpdate, g_settings);
 
 			if (Recording()) {
-				g_building.rays.push_back({ g_castFrom, g_castTo, state->translation, true, true, false, RayKind::Cast });
+				g_building.rays.push_back({ g_castFrom, g_castTo, a_this->translation, true, true, false, RayKind::Cast });
 				g_building.bounds = fade::Bounds();
 			}
 			{
@@ -531,14 +522,8 @@ namespace mcc::collision
 
 			if (g_verbose) {
 				spdlog::info("update {} -> camera at ({:.1f}, {:.1f}, {:.1f}), held at {:.2f} of the cast", n,
-					state->translation.x, state->translation.y, state->translation.z, motion::Pull());
+					a_this->translation.x, a_this->translation.y, a_this->translation.z, motion::Pull());
 			}
-		}
-
-		template <CameraState N>
-		void CameraUpdateHook(RE::TESCameraState* a_this, RE::BSTSmartPointer<RE::TESCameraState>& a_next)
-		{
-			CameraUpdate(a_this, a_next, g_originalUpdate[N]);
 		}
 
 		// The camera's sweep: during a hooked update, and cast by the
@@ -685,19 +670,7 @@ namespace mcc::collision
 			spdlog::error("collision: MH_Initialize failed: {}", MH_StatusToString(status));
 			return false;
 		}
-		// TESCameraState::Update is the fourth virtual on SE and AE; VR has
-		// one more before it.
-		const std::size_t update = REL::Module::IsVR() ? 4 : 3;
-		const auto        hookState = [&](CameraState a_state, const auto& a_vtable, CameraUpdateFn* a_hook, const char* a_name) {
-			REL::Relocation<std::uintptr_t> vtable{ a_vtable[0] };
-			g_originalUpdate[a_state] = reinterpret_cast<CameraUpdateFn*>(vtable.write_vfunc(update, a_hook));
-			spdlog::info("collision: hooked {}::Update", a_name);
-		};
-		hookState(kThirdPerson, RE::VTABLE_ThirdPersonState, &CameraUpdateHook<kThirdPerson>, "ThirdPersonState");
-		hookState(kHorse, RE::VTABLE_HorseCameraState, &CameraUpdateHook<kHorse>, "HorseCameraState");
-		hookState(kDragon, RE::VTABLE_DragonCameraState, &CameraUpdateHook<kDragon>, "DragonCameraState");
-		hookState(kBleedout, RE::VTABLE_BleedoutCameraState, &CameraUpdateHook<kBleedout>, "BleedoutCameraState");
-
-		return Hook(kLinearCastID, &LinearCastHook, g_originalLinearCast, "hkpWorld::LinearCast");
+		return Hook(kUpdateCameraCollisionID, &UpdateCameraCollisionHook, g_originalUpdate, "ThirdPersonState::UpdateCameraCollision") &&
+		       Hook(kLinearCastID, &LinearCastHook, g_originalLinearCast, "hkpWorld::LinearCast");
 	}
 }

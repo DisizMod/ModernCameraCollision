@@ -7,9 +7,8 @@
 namespace
 {
 	// SE 1.5.97 is where every hook was found and run; AE (1.6 and 1.7)
-	// resolves the same functions through CommonLibSSE-NG's id pairs and
-	// the camera states' vtables. VR is refused: its camera state and
-	// renderer layouts were never tried.
+	// resolves the same functions through SE/AE id pairs. VR is refused:
+	// its camera state and renderer layouts were never tried.
 	bool IsSupportedRuntime()
 	{
 		return !REL::Module::IsVR();
