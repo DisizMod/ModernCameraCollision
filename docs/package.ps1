@@ -1,5 +1,5 @@
 # Builds the release archive: the DLL from the Release build, dist/ as the
-# mod's data, the licence and the third-party notices. Nothing else -- no PDB,
+# mod's data, LICENSE.txt, README.txt and THIRD-PARTY.txt. Nothing else -- no PDB,
 # no local override files (only _Example.ini.txt ships from Overrides/).
 #
 #   powershell -File docs/package.ps1            # build/ModernCameraCollision-<version>.zip
@@ -30,8 +30,31 @@ Get-ChildItem -Path (Join-Path $root 'dist') -Recurse -File | ForEach-Object {
     Copy-Item $_.FullName $dest
 }
 Copy-Item $dll (Join-Path $stage 'SKSE\Plugins\')
-Copy-Item (Join-Path $root 'LICENSE') (Join-Path $stage 'ModernCameraCollision-LICENSE.txt')
-Copy-Item (Join-Path $root 'THIRD-PARTY.md') (Join-Path $stage 'ModernCameraCollision-THIRD-PARTY.txt')
+# The GPL asks for the licence text, a copyright statement with the warranty
+# disclaimer, and a way to the source; LICENSE.txt and README.txt carry them.
+Copy-Item (Join-Path $root 'LICENSE') (Join-Path $stage 'LICENSE.txt')
+Copy-Item (Join-Path $root 'THIRD-PARTY.md') (Join-Path $stage 'THIRD-PARTY.txt')
+@"
+Modern Camera Collision $Version
+Copyright (C) 2026 DisizMod
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program, in LICENSE.txt.  If not, see
+<https://www.gnu.org/licenses/>.
+
+Source code: https://github.com/DisizMod/ModernCameraCollision
+Third-party software and its licences: THIRD-PARTY.txt
+"@ | Out-File -FilePath (Join-Path $stage 'README.txt') -Encoding ascii
 
 $zip = Join-Path $root "build\ModernCameraCollision-$Version.zip"
 if (Test-Path $zip) { Remove-Item -Force $zip }

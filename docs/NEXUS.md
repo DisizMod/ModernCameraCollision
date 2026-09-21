@@ -68,9 +68,15 @@ places it, this only judges each thing the sweep hits.
 **Settings** are in `MCM/Config/ModernCameraCollision/settings.ini` (defaults)
 and whatever you change in the MCM is saved by MCM Helper.
 
-**Source** is MIT-licensed: [link]. Built on CommonLibSSE-NG and MinHook. The
-prediction rays and the hold-then-ease-out follow John Nesky's "50 Camera
-Mistakes" (GDC 2014).
+**Source and licence.** Copyright (C) 2026 DisizMod. Free software under the
+GNU General Public License, version 3 or later — it links CommonLibSSE-NG,
+which is GPL. The full licence text is in `LICENSE.txt` in the download and at
+https://www.gnu.org/licenses/gpl-3.0.html. The complete source is at
+https://github.com/DisizMod/ModernCameraCollision. Built on CommonLibSSE-NG
+and MinHook. The prediction rays and the hold-then-ease-out follow John
+Nesky's "50 Camera Mistakes" (GDC 2014).
+
+Permissions: open — modify and redistribute under the same licence (GPL-3.0).
 
 ---
 

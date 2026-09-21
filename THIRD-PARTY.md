@@ -1,10 +1,11 @@
 # Third-party software
 
 Modern Camera Collision links these statically into `ModernCameraCollision.dll`.
+Because CommonLibSSE-NG is GPL, so is this plugin (GPL-3.0-or-later; see `LICENSE`).
 
 | Library | Licence | Source |
 |---|---|---|
-| CommonLibSSE-NG | MIT | https://github.com/alandtse/CommonLibSSE-NG |
+| CommonLibSSE-NG | GPL-3.0-or-later, with the Modding and Linking exceptions | https://github.com/alandtse/CommonLibSSE-NG |
 | MinHook | BSD 2-Clause | https://github.com/TsudaKageyu/minhook |
 | spdlog | MIT | https://github.com/gabime/spdlog |
 | fmt | MIT | https://github.com/fmtlib/fmt |

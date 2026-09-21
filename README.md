@@ -55,4 +55,17 @@ other languages.
 
 ## Licence
 
-MIT; see `LICENSE`. Third-party notices in `THIRD-PARTY.md`.
+Copyright (C) 2026 DisizMod.
+
+Modern Camera Collision is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at your
+option) any later version. It is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License (`LICENSE`, or <https://www.gnu.org/licenses/gpl-3.0.html>)
+for more details.
+
+It is GPL because it links CommonLibSSE-NG, which is GPL-3.0-or-later.
+Third-party notices in `THIRD-PARTY.md`. Source:
+<https://github.com/DisizMod/ModernCameraCollision>.
