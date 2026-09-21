@@ -194,6 +194,31 @@
         },
         {
           "type": "slider",
+          "text": "High angle: from this pitch, the body is seen end-on",
+          "id": "fHighAngle:Rules",
+          "help": "With the camera more than this many degrees above or below level, only the cap facing it is sampled, smaller, and the side line becomes a cross along and across the camera's direction.",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 10,
+            "max": 85,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "type": "slider",
+          "text": "High angle: the body's width, as a share",
+          "id": "fHighScale:Rules",
+          "valueOptions": {
+            "sourceType": "ModSettingFloat",
+            "min": 0.2,
+            "max": 1.0,
+            "step": 0.05,
+            "formatString": "{2}"
+          }
+        },
+        {
+          "type": "slider",
           "text": "Dropped when the occluder takes less than",
           "id": "iDropBelowPercent:Rules",
           "help": "Percent of the disc's samples. Once dropped, an occluder needs this plus 12 points to be kept again; once kept, 25 under it to be dropped.",

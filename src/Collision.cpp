@@ -256,11 +256,29 @@ namespace mcc::collision
 			const float w = g_settings.bodyHalfWidth;
 			const float above = g_settings.bodyAbove;
 			const float below = g_settings.bodyBelow;
-			int         n = 0;
+
+			// From a high or low angle the body is seen end-on: only the cap
+			// facing the eye is sampled, smaller, and the side line is a
+			// cross.
+			const RE::NiPoint3 offset = eye - centre;
+			const float        level = std::sqrt(offset.x * offset.x + offset.y * offset.y);
+			const float        pitch = std::atan2(offset.z, (std::max)(level, 1.0f)) / kDegToRad;
+			const bool         high = std::fabs(pitch) > g_settings.highAngle;
+			const bool         fromAbove = offset.z > 0.0f;
+			const float        scale = high ? g_settings.highScale : 1.0f;
+			// The heights sampled: the whole body, or the cap facing the eye.
+			float yLow = -below, yHigh = above;
+			if (high) {
+				const float cap = (std::min)(w, fromAbove ? above : below);
+				yLow = fromAbove ? above - cap : -below;
+				yHigh = fromAbove ? above : -below + cap;
+			}
+
+			int n = 0;
 			a_disc.rings = 0;
 			for (int r = 0; r < rows && n < 64; ++r) {
-				const float y = rows > 1 ? -below + (above + below) * static_cast<float>(r) / static_cast<float>(rows - 1) : 0.0f;
-				const float radius = CapsuleRadiusAt(y);
+				const float y = rows > 1 ? yLow + (yHigh - yLow) * static_cast<float>(r) / static_cast<float>(rows - 1) : 0.0f;
+				const float radius = CapsuleRadiusAt(y) * scale;
 				// The ring, for drawing.
 				if (a_disc.rings < 9) {
 					for (int i = 0; i < 16; ++i) {
@@ -277,13 +295,19 @@ namespace mcc::collision
 				}
 			}
 			// The side line: at the pivot's height, level, across the eye's
-			// direction, out past the body's edge on both sides.
+			// direction, out past the body's edge on both sides -- and from a
+			// high angle a cross, along the eye's direction as well.
 			const int   sidePoints = std::clamp(g_settings.sidePoints, 0, 6);
 			const float sideReach = (std::max)(g_settings.sideReach, 0.0f);
+			const float sideY = high ? (fromAbove ? above : -below) : 0.0f;  // the cross sits on the cap, the line at the pivot
 			for (int i = 1; i <= sidePoints && n + 1 < 64; ++i) {
-				const float x = w + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
-				a_disc.point[n++] = centre + across * x;
-				a_disc.point[n++] = centre - across * x;
+				const float x = w * scale + sideReach * static_cast<float>(i) / static_cast<float>(sidePoints);
+				a_disc.point[n++] = centre + worldUp * sideY + across * x;
+				a_disc.point[n++] = centre + worldUp * sideY - across * x;
+				if (high && n + 1 < 64) {
+					a_disc.point[n++] = centre + worldUp * sideY + facing * x;
+					a_disc.point[n++] = centre + worldUp * sideY - facing * x;
+				}
 			}
 			a_disc.samples = n;
 

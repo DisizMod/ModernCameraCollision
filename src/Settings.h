@@ -43,6 +43,13 @@ namespace mcc::settings
 		// beside the player, for telling a pole from a wall.
 		float sideReach = 120.0f;    // how far past the body's edge the line reaches
 		int   sidePoints = 3;        // samples per side on it
+		// From a high (or low) angle -- the eye more than highAngle above
+		// or below level -- the body is seen end-on: the samples cover only
+		// the cap that faces the eye, at highScale of the width, and the
+		// side line becomes a cross, level, along and across the eye's
+		// direction.
+		float highAngle = 45.0f;
+		float highScale = 0.6f;
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
 		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 
