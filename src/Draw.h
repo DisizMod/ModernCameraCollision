@@ -1,7 +1,7 @@
 #pragma once
 
 // Lines over the game, for seeing what the camera measured: the engine's
-// sweep, the discs and their samples, the whiskers, the faded shapes'
+// sweep, the discs and their samples, the prediction rays, the faded shapes'
 // bounds. A hook on the swap chain's Present draws them with a line
 // shader of our own -- no ImGui -- from the last update's frame, projected
 // through the player camera. Which of them are drawn is set from the MCM.

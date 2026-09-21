@@ -9,7 +9,7 @@ add_commonlibsse_plugin(ModernCameraCollision
         Plugin.cpp
         Settings.cpp
         Collision.cpp
-        Whiskers.cpp
+        Prediction.cpp
         Motion.cpp
         Fade.cpp
         Draw.cpp

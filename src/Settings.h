@@ -55,11 +55,11 @@ namespace mcc::settings
 		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
 		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 
-		// [Whiskers]
-		bool  whiskers = true;
-		bool  whiskersVertical = true;
-		bool  whiskersDiagonal = true;
-		bool  shorten = true;          // the near whiskers cap the distance at what they measure free
+		// [Prediction]
+		bool  predictionRays = true;
+		bool  predictionVertical = true;
+		bool  predictionDiagonal = true;
+		bool  shorten = true;          // the near prediction rays cap the distance at what they measure free
 		bool  swing = false;           // turn the camera away from a blocked side (off: needs the player's heading)
 		float swingYawDegPerSec = 60.0f;
 		float swingPitchDegPerSec = 40.0f;
@@ -85,7 +85,7 @@ namespace mcc::settings
 
 		// [Debug]
 		bool drawDiscs = false;
-		bool drawWhiskers = false;
+		bool drawPredictionRays = false;
 		bool drawRays = false;
 		bool drawBounds = false;
 		bool logVerbose = false;  // one update in sixty, and the first ten, in full

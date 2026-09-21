@@ -1,8 +1,8 @@
-#include "Whiskers.h"
+#include "Prediction.h"
 
 #include "Collision.h"
 
-namespace mcc::whiskers
+namespace mcc::prediction
 {
 	namespace
 	{
@@ -53,7 +53,7 @@ namespace mcc::whiskers
 
 		std::chrono::steady_clock::time_point g_lastLookInput;
 
-		// A whisker's fraction of the whole a_from..a_to: 1 when clear, and 1
+		// A prediction ray's fraction of the whole a_from..a_to: 1 when clear, and 1
 		// as well when what it found is something the camera would be let
 		// through. The ray itself starts clear of the player's capsule.
 		float Fraction(const RE::hkpWorld* a_world, const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, float a_scale,
@@ -66,23 +66,23 @@ namespace mcc::whiskers
 			RE::hkpWorldRayCastOutput output;
 			collision::CastRay(a_world, start, a_to, a_scale, output);
 			if (!output.HasHit()) {
-				collision::Record(collision::RayKind::Whisker, start, a_to, output, false, false);
+				collision::Record(collision::RayKind::Prediction, start, a_to, output, false, false);
 				return 1.0f;
 			}
 			const RE::NiPoint3 at = start + (a_to - start) * output.hitFraction;
 			const float        fraction = length > 0.0f ? (clearance + output.hitFraction * (length - clearance)) / length : 1.0f;
 			auto*              ref = output.rootCollidable ? RE::TESHavokUtilities::FindCollidableRef(*output.rootCollidable) : nullptr;
 
-			// Judged with a disc of its own, from the whisker's far end: where
+			// Judged with a disc of its own, from the prediction ray's far end: where
 			// the camera would be at its angle.
 			const auto verdict = collision::Judge(a_world, output.rootCollidable, ref, at, a_to, a_scale, true, a_settings);
 			const bool stops = verdict.stops;
 			if (collision::Verbose()) {
-				spdlog::info("  whisker {} at {:.2f} cover {}% {}{}{} {}", a_name, fraction, verdict.cover,
+				spdlog::info("  prediction ray {} at {:.2f} cover {}% {}{}{} {}", a_name, fraction, verdict.cover,
 					verdict.whole ? "through by layer " : "", verdict.isSmall ? "small " : "", stops ? "COUNTS" : "let through",
 					collision::Describe(output.rootCollidable));
 			}
-			collision::Record(collision::RayKind::Whisker, start, a_to, output, stops, false);
+			collision::Record(collision::RayKind::Prediction, start, a_to, output, stops, false);
 			return stops ? fraction : 1.0f;
 		}
 	}
@@ -91,7 +91,7 @@ namespace mcc::whiskers
 	{
 		g_blockedLeft = g_blockedRight = g_blockedDown = g_blockedUp = 0.0f;
 		g_nearFree = 1.0f;
-		if (!a_settings.whiskers) {
+		if (!a_settings.predictionRays) {
 			return;
 		}
 
@@ -113,8 +113,8 @@ namespace mcc::whiskers
 				Fraction(a_world, to, to + dir * kBehindUnits, a_scale, a_settings, def.name);
 				continue;
 			}
-			if ((def.group == Group::Vertical && !a_settings.whiskersVertical) ||
-				(def.group == Group::Diagonal && !a_settings.whiskersDiagonal)) {
+			if ((def.group == Group::Vertical && !a_settings.predictionVertical) ||
+				(def.group == Group::Diagonal && !a_settings.predictionDiagonal)) {
 				continue;
 			}
 			const float        y = def.yaw * kDegToRad;
@@ -122,7 +122,7 @@ namespace mcc::whiskers
 			const RE::NiPoint3 turned = (dir * (std::cos(p) * std::cos(y)) - right * (std::cos(p) * std::sin(y)) + up * std::sin(p)) * length;
 			const float        fraction = Fraction(a_world, from, from + turned, a_scale, a_settings, def.name);
 
-			// How blocked a side is: the most blocked of its whiskers.
+			// How blocked a side is: the most blocked of its prediction rays.
 			const float blocked = def.weight * (1.0f - fraction);
 			if (def.yaw < 0.0f) {
 				g_blockedLeft = (std::max)(g_blockedLeft, blocked);
@@ -148,7 +148,7 @@ namespace mcc::whiskers
 
 	void Swing(RE::ThirdPersonState* a_state, float a_dt, const settings::Values& a_settings)
 	{
-		if (!a_settings.whiskers || !a_settings.swing) {
+		if (!a_settings.predictionRays || !a_settings.swing) {
 			return;
 		}
 		const auto now = std::chrono::steady_clock::now();

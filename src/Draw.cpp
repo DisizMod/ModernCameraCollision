@@ -189,8 +189,8 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 						Mark(ray.hitAt, kWhite, 5.0f);
 					}
 					break;
-				case collision::RayKind::Whisker:
-					if (a_settings.drawWhiskers) {
+				case collision::RayKind::Prediction:
+					if (a_settings.drawPredictionRays) {
 						Line(ray.from, ray.hit ? ray.hitAt : ray.to, ray.hit ? (ray.counts ? kRed : kGreen) : kGreen);
 						if (ray.hit) {
 							Mark(ray.hitAt, ray.counts ? kRed : kGreen, 4.0f);
@@ -198,8 +198,8 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 					}
 					break;
 				case collision::RayKind::Disc:
-					if (a_settings.drawRays && (!ray.forWhisker || a_settings.drawWhiskers)) {
-						const Colour colour = ray.forWhisker ? (ray.counts ? kBlue : kBlueDark) : (ray.counts ? kYellow : kGrey);
+					if (a_settings.drawRays && (!ray.forPrediction || a_settings.drawPredictionRays)) {
+						const Colour colour = ray.forPrediction ? (ray.counts ? kBlue : kBlueDark) : (ray.counts ? kYellow : kGrey);
 						Line(ray.from, ray.hit ? ray.hitAt : ray.to, colour);
 					}
 					break;
@@ -207,10 +207,10 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 			}
 			if (a_settings.drawDiscs) {
 				for (const auto& disc : a_frame.discs) {
-					if (disc.forWhisker && !a_settings.drawWhiskers) {
-						continue;  // a whisker's, and the whiskers are not being drawn
+					if (disc.forPrediction && !a_settings.drawPredictionRays) {
+						continue;  // a prediction ray's, and the prediction rays are not being drawn
 					}
-					const Colour colour = disc.forWhisker ? (disc.dropped ? kBlueDark : kBlue) : (disc.dropped ? kOrange : kYellow);
+					const Colour colour = disc.forPrediction ? (disc.dropped ? kBlueDark : kBlue) : (disc.dropped ? kOrange : kYellow);
 					for (int i = 0; i < 32; ++i) {
 						Line(disc.outline[i], disc.outline[(i + 1) % 32], colour);
 					}
@@ -342,7 +342,7 @@ float4 ps(VSOut i) : SV_TARGET { return i.col; }
 			auto*      ui = RE::UI::GetSingleton();
 			const bool menuUp = ui && (ui->GameIsPaused() || ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
 										  ui->IsMenuOpen(RE::Console::MENU_NAME) || ui->numPausesGame > 0);
-			if (!menuUp && (settings.drawDiscs || settings.drawWhiskers || settings.drawRays || settings.drawBounds)) {
+			if (!menuUp && (settings.drawDiscs || settings.drawPredictionRays || settings.drawRays || settings.drawBounds)) {
 				DXGI_SWAP_CHAIN_DESC description{};
 				if (SUCCEEDED(a_swapChain->GetDesc(&description))) {
 					g_width = static_cast<float>(description.BufferDesc.Width);

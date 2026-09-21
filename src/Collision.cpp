@@ -2,7 +2,7 @@
 
 #include "Fade.h"
 #include "Motion.h"
-#include "Whiskers.h"
+#include "Prediction.h"
 
 #include <MinHook.h>
 
@@ -256,7 +256,7 @@ namespace mcc::collision
 		}
 
 		int DiscCover(const RE::hkpWorld* a_world, const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, RE::TESObjectREFR* a_ref,
-			float a_scale, bool a_forWhisker, DiscView& a_disc)
+			float a_scale, bool a_forPrediction, DiscView& a_disc)
 		{
 			// The bumper stands upright in the world about the pivot, turned to
 			// face the eye about the vertical only, so it never tilts. From a
@@ -269,7 +269,7 @@ namespace mcc::collision
 			const RE::NiPoint3 facing = Length(toEye) > 1.0f ? Normalized(toEye) : RE::NiPoint3{ 1.0f, 0.0f, 0.0f };  // toward the eye, level
 			const RE::NiPoint3 across = Normalized(Cross(worldUp, facing));                                              // beside the player, level
 			const auto         id = a_ref ? a_ref->GetFormID() : 0u;
-			a_disc = DiscView{ centre, {}, false, a_forWhisker, 0, {}, {} };
+			a_disc = DiscView{ centre, {}, false, a_forPrediction, 0, {}, {} };
 
 			const RE::NiPoint3 offset = eye - centre;
 			const float        level = std::sqrt(offset.x * offset.x + offset.y * offset.y);
@@ -395,7 +395,7 @@ namespace mcc::collision
 					}
 				}
 				a_disc.hit[i] = there;
-				Record(RayKind::Disc, start, to, drawn, there, a_forWhisker);
+				Record(RayKind::Disc, start, to, drawn, there, a_forPrediction);
 				if (there) {
 					++taken;
 				} else if (!unknown) {
@@ -539,7 +539,7 @@ namespace mcc::collision
 			g_dropped = std::move(proxy.dropped);
 
 			if (g_castThisUpdate) {
-				whiskers::Cast(a_world, scale, g_settings);
+				prediction::Cast(a_world, scale, g_settings);
 			}
 		}
 
@@ -565,7 +565,7 @@ namespace mcc::collision
 	}
 
 	Verdict Judge(const RE::hkpWorld* a_world, const RE::hkpCollidable* a_root, RE::TESObjectREFR* a_ref,
-		const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, float a_scale, bool a_forWhisker,
+		const RE::NiPoint3& a_at, const RE::NiPoint3& a_eye, float a_scale, bool a_forPrediction,
 		const settings::Values& a_settings)
 	{
 		Verdict verdict;
@@ -594,7 +594,7 @@ namespace mcc::collision
 		}
 
 		DiscView disc;
-		verdict.cover = DiscCover(a_world, a_at, a_eye, a_ref, a_scale, a_forWhisker, disc);
+		verdict.cover = DiscCover(a_world, a_at, a_eye, a_ref, a_scale, a_forPrediction, disc);
 		const bool tooSmallOnTheDisc = Decide(a_ref, a_at, verdict.cover);
 		verdict.isSmall = fade::Fadeable(a_ref, a_at, a_settings);
 		verdict.stops = !tooSmallOnTheDisc && !verdict.isSmall;
@@ -630,16 +630,16 @@ namespace mcc::collision
 
 	bool Recording()
 	{
-		return g_settings.drawDiscs || g_settings.drawWhiskers || g_settings.drawRays || g_settings.drawBounds;
+		return g_settings.drawDiscs || g_settings.drawPredictionRays || g_settings.drawRays || g_settings.drawBounds;
 	}
 
 	void Record(RayKind a_kind, const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, const RE::hkpWorldRayCastOutput& a_output,
-		bool a_counts, bool a_forWhisker)
+		bool a_counts, bool a_forPrediction)
 	{
 		if (!Recording()) {
 			return;
 		}
-		RayView view{ a_from, a_to, a_to, a_output.HasHit(), a_counts, a_forWhisker, a_kind };
+		RayView view{ a_from, a_to, a_to, a_output.HasHit(), a_counts, a_forPrediction, a_kind };
 		if (view.hit) {
 			view.hitAt = a_from + (a_to - a_from) * a_output.hitFraction;
 		}

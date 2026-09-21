@@ -1,7 +1,7 @@
 #include "Motion.h"
 
 #include "Collision.h"
-#include "Whiskers.h"
+#include "Prediction.h"
 
 namespace mcc::motion
 {
@@ -30,9 +30,9 @@ namespace mcc::motion
 		}
 
 		// Where the engine put the camera, as a fraction of the cast, and
-		// the nearer of that and the whiskers' cap.
+		// the nearer of that and the prediction rays' cap.
 		const float wanted = std::clamp(Length(a_state->translation - from) / length, 0.0f, 1.0f);
-		const float cap = a_settings.shorten ? whiskers::NearFree() : 1.0f;
+		const float cap = a_settings.shorten ? prediction::NearFree() : 1.0f;
 		const float target = (std::min)(wanted, cap);
 
 		if (target < g_pull) {
@@ -56,7 +56,7 @@ namespace mcc::motion
 			a_state->translation = from + span * g_pull;
 			a_state->collisionPos = a_state->translation;
 		}
-		whiskers::Swing(a_state, dt, a_settings);
+		prediction::Swing(a_state, dt, a_settings);
 	}
 
 	float Pull()

@@ -10,7 +10,7 @@ through `d10dbab`). This is what came out, and why.
    pivot to the wanted position on the `L_CAMERA` layer. We front its hit
    collector and judge every hit before the engine sorts them; a dropped hit
    is simply not forwarded, and the engine takes the next-closest.
-2. **One verdict** for the camera's own hits and the whiskers' alike:
+2. **One verdict** for the camera's own hits and the prediction rays' alike:
    - the player's own body: never stops (the engine's to ignore);
    - terrain and ground: always;
    - a layer set to *through*: never, and the occluder is faded whole;
@@ -42,11 +42,11 @@ through `d10dbab`). This is what came out, and why.
    page offers rules for the first five; any other takes an `iL_<name>` key
    under `[Layers]` in the INI once its contents have been looked at.
 6. **Motion**: the distance eases in toward the nearer of the engine's stop
-   and the whiskers' cap (small constant — the engine parks the camera ~5
+   and the prediction rays' cap (small constant — the engine parks the camera ~5
    units short of a surface, so easing in is time spent inside it), is held
    after the way clears, then eases out. Cinemachine's damping-when-occluded,
    smoothing time, damping.
-7. **Whiskers** (Nesky, *50 Camera Mistakes*): rays from the pivot to where
+7. **Prediction rays** (Nesky, *50 Camera Mistakes*): rays from the pivot to where
    the camera would be at yaw ±10/20/30 (horizontal), pitch ±10/20/30
    (vertical), yaw ±20 with pitch ±20 (diagonal), and one 80 units straight
    back. Each hit is judged by the one verdict, once per reference an

@@ -144,16 +144,16 @@ namespace mcc::settings
 			i("Rules", "iDropBelowPercent", a_values.dropBelowPercent);
 			f("Rules", "fPartDistance", a_values.partDistance);
 
-			b("Whiskers", "bWhiskers", a_values.whiskers);
-			b("Whiskers", "bVertical", a_values.whiskersVertical);
-			b("Whiskers", "bDiagonal", a_values.whiskersDiagonal);
-			b("Whiskers", "bShorten", a_values.shorten);
-			b("Whiskers", "bSwing", a_values.swing);
-			f("Whiskers", "fSwingYawDegPerSec", a_values.swingYawDegPerSec);
-			f("Whiskers", "fSwingPitchDegPerSec", a_values.swingPitchDegPerSec);
-			b("Whiskers", "bSwingYawInverted", a_values.swingYawInverted);
-			b("Whiskers", "bSwingPitchInverted", a_values.swingPitchInverted);
-			b("Whiskers", "bIntentWins", a_values.intentWins);
+			b("Prediction", "bPredictionRays", a_values.predictionRays);
+			b("Prediction", "bVertical", a_values.predictionVertical);
+			b("Prediction", "bDiagonal", a_values.predictionDiagonal);
+			b("Prediction", "bShorten", a_values.shorten);
+			b("Prediction", "bSwing", a_values.swing);
+			f("Prediction", "fSwingYawDegPerSec", a_values.swingYawDegPerSec);
+			f("Prediction", "fSwingPitchDegPerSec", a_values.swingPitchDegPerSec);
+			b("Prediction", "bSwingYawInverted", a_values.swingYawInverted);
+			b("Prediction", "bSwingPitchInverted", a_values.swingPitchInverted);
+			b("Prediction", "bIntentWins", a_values.intentWins);
 
 			b("Fade", "bFade", a_values.fade);
 			f("Fade", "fAlpha", a_values.fadeAlpha);
@@ -174,7 +174,7 @@ namespace mcc::settings
 			}
 
 			b("Debug", "bDrawDiscs", a_values.drawDiscs);
-			b("Debug", "bDrawWhiskers", a_values.drawWhiskers);
+			b("Debug", "bDrawPredictionRays", a_values.drawPredictionRays);
 			b("Debug", "bDrawRays", a_values.drawRays);
 			b("Debug", "bDrawBounds", a_values.drawBounds);
 			b("Debug", "bLogVerbose", a_values.logVerbose);
@@ -242,11 +242,11 @@ namespace mcc::settings
 			g_values = values;
 		}
 		spdlog::info("settings: defaults {}, user file {}; enabled {}, min bound {:.0f}, body {:.0f} wide {:.0f} above {:.0f} below, {} x {} samples, "
-					 "drop below {}%, same part {:.0f}, hold {:.2f}s ease in {:.3f}s out {:.2f}s, whiskers {} shorten {} swing {}, "
+					 "drop below {}%, same part {:.0f}, hold {:.2f}s ease in {:.3f}s out {:.2f}s, prediction rays {} shorten {} swing {}, "
 					 "fade {} at {:.2f} over {:.2f}s, {} layer rule(s)",
 			defaults ? "read" : "missing", user ? "read" : "missing", values.enabled, values.minBound, values.bodyHalfWidth * 2.0f,
 			values.bodyAbove, values.bodyBelow, values.bodyColumns, values.bodyRows, values.dropBelowPercent, values.partDistance, values.holdSecs,
-			values.easeInSecs, values.easeOutSecs, values.whiskers, values.shorten, values.swing, values.fade, values.fadeAlpha,
+			values.easeInSecs, values.easeOutSecs, values.predictionRays, values.shorten, values.swing, values.fade, values.fadeAlpha,
 			values.fadeSecs, values.layerRules.size());
 		if (!values.formOverrides.empty() || !values.modelOverrides.empty()) {
 			spdlog::info("settings: {} form override(s), {} model override(s)", values.formOverrides.size(), values.modelOverrides.size());

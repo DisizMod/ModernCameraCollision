@@ -271,7 +271,7 @@
       ]
     },
     {
-      "pageDisplayName": "Whiskers",
+      "pageDisplayName": "Prediction rays",
       "content": [
         {
           "type": "header",
@@ -279,8 +279,8 @@
         },
         {
           "type": "toggle",
-          "text": "Whiskers",
-          "id": "bWhiskers:Whiskers",
+          "text": "Prediction rays",
+          "id": "bPredictionRays:Prediction",
           "help": "Rays from the player to where the camera would be a little to either side, above and below. A blocked one says a wall is coming before the camera meets it.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
@@ -288,25 +288,25 @@
         },
         {
           "type": "toggle",
-          "text": "Vertical whiskers",
-          "id": "bVertical:Whiskers",
+          "text": "Vertical prediction rays",
+          "id": "bVertical:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Diagonal whiskers",
-          "id": "bDiagonal:Whiskers",
+          "text": "Diagonal prediction rays",
+          "id": "bDiagonal:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Shorten the distance to what the near whiskers measure free",
-          "id": "bShorten:Whiskers",
-          "help": "The whiskers nearest the camera's line cap the distance, so the camera is already coming in as a wall approaches from behind.",
+          "text": "Shorten the distance to what the near prediction rays measure free",
+          "id": "bShorten:Prediction",
+          "help": "The prediction rays nearest the camera's line cap the distance, so the camera is already coming in as a wall approaches from behind.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -318,8 +318,8 @@
         {
           "type": "toggle",
           "text": "Swing away from a blocked side",
-          "id": "bSwing:Whiskers",
-          "help": "Turns the camera's free rotation away from the side a whisker finds blocked. Off by default: it does not yet consider where the player is heading.",
+          "id": "bSwing:Prediction",
+          "help": "Turns the camera's free rotation away from the side a prediction ray finds blocked. Off by default: it does not yet consider where the player is heading.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -327,7 +327,7 @@
         {
           "type": "slider",
           "text": "Yaw swing (deg/s at fully blocked)",
-          "id": "fSwingYawDegPerSec:Whiskers",
+          "id": "fSwingYawDegPerSec:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0,
@@ -339,7 +339,7 @@
         {
           "type": "slider",
           "text": "Pitch swing (deg/s at fully blocked)",
-          "id": "fSwingPitchDegPerSec:Whiskers",
+          "id": "fSwingPitchDegPerSec:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingFloat",
             "min": 0,
@@ -351,7 +351,7 @@
         {
           "type": "toggle",
           "text": "Swing yaw the other way",
-          "id": "bSwingYawInverted:Whiskers",
+          "id": "bSwingYawInverted:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -359,7 +359,7 @@
         {
           "type": "toggle",
           "text": "Swing pitch the other way",
-          "id": "bSwingPitchInverted:Whiskers",
+          "id": "bSwingPitchInverted:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -367,7 +367,7 @@
         {
           "type": "toggle",
           "text": "The player wins: no swing while turning the camera",
-          "id": "bIntentWins:Whiskers",
+          "id": "bIntentWins:Prediction",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
@@ -547,16 +547,16 @@
           "type": "toggle",
           "text": "Draw the discs",
           "id": "bDrawDiscs:Debug",
-          "help": "The bumper (or the high-angle disc) at each judgement: yellow kept, orange dropped; blue when measured for a whisker; a mark where each sample found the occluder.",
+          "help": "The bumper (or the high-angle disc) at each judgement: yellow kept, orange dropped; blue when measured for a prediction ray; a mark where each sample found the occluder.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
         },
         {
           "type": "toggle",
-          "text": "Draw the whiskers",
-          "id": "bDrawWhiskers:Debug",
-          "help": "The whiskers themselves -- red where one found something the camera would stop at, green where clear -- and everything they measured: their bumpers and sample rays, in blue. Off, only the camera's own check is drawn. This does not switch the whiskers off; that is on the Whiskers page.",
+          "text": "Draw the prediction rays",
+          "id": "bDrawPredictionRays:Debug",
+          "help": "The prediction rays themselves -- red where one found something the camera would stop at, green where clear -- and everything they measured: their bumpers and sample rays, in blue. Off, only the camera's own check is drawn. This does not switch the prediction rays off; that is on the Prediction rays page.",
           "valueOptions": {
             "sourceType": "ModSettingBool"
           }
