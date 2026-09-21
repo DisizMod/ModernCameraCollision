@@ -6,31 +6,30 @@
   "pluginRequirements": [
     "ModernCameraCollision.esp"
   ],
-  "content": [
-    {
-      "type": "header",
-      "text": "Modern Camera Collision"
-    },
-    {
-      "type": "toggle",
-      "text": "Enabled",
-      "id": "bEnabled:General",
-      "help": "The third-person camera sees around small things, eases in and out, and fades what it is let through.",
-      "valueOptions": {
-        "sourceType": "ModSettingBool"
-      }
-    },
-    {
-      "type": "text",
-      "text": "Changes apply when this menu closes."
-    }
-  ],
   "pages": [
     
     {
       "pageDisplayName": "Collision Rays",
       "content": [
-        
+        {
+          "type": "header",
+          "text": "Modern Camera Collision"
+        },
+        {
+          "type": "empty"
+        },
+        {
+          "type": "toggle",
+          "text": "Enabled",
+          "id": "bEnabled:General",
+          "help": "The third-person camera sees around small things, eases in and out, and fades what it is let through.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
+        },
+        {
+          "type": "empty"
+        },
         {
           "type": "header",
           "text": "Collision Bumper"
@@ -345,7 +344,10 @@
       "content": [
         {
           "type": "header",
-          "text": "The distance, in and out"
+          "text": "Transition to collision target."
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "slider",
@@ -361,6 +363,9 @@
           }
         },
         {
+          "type": "empty"
+        },
+        {
           "type": "slider",
           "text": "Ease in (s)",
           "id": "fEaseInSecs:Motion",
@@ -372,6 +377,9 @@
             "step": 0.005,
             "formatString": "{3}"
           }
+        },
+        {
+          "type": "empty"
         },
         {
           "type": "slider",

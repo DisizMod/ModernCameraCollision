@@ -104,6 +104,7 @@ namespace mcc::collision
 			}
 			switch (a_layer) {
 			case RE::COL_LAYER::kTrees: return settings::Rule::Fade;
+			case RE::COL_LAYER::kAnimStatic:
 			case RE::COL_LAYER::kTerrain:
 			case RE::COL_LAYER::kGround: return settings::Rule::Stop;
 			default: return settings::Rule::Measure;

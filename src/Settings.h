@@ -34,27 +34,27 @@ namespace mcc::settings
 		// rounded ends -- upright in the plane facing the eye, about the
 		// pivot the sweep starts from. Half-width for the shoulders, a
 		// height above the pivot for the head, one below for the legs.
-		float bodyHalfWidth = 30.0f;
-		float bodyAbove = 30.0f;
-		float bodyBelow = 100.0f;
-		int   bodyColumns = 5;       // sample grid across the body...
-		int   bodyRows = 5;          // ... and down it; points outside the stadium are left out
+		float bodyHalfWidth = 25.0f;
+		float bodyAbove = 20.0f;
+		float bodyBelow = 80.0f;
+		int   bodyColumns = 2;       // sample grid across the body...
+		int   bodyRows = 2;          // ... and down it; points outside the stadium are left out
 		// A horizontal line of samples at the pivot's height, across the
 		// camera's line, reaching out past the body on both sides: what is
 		// beside the player, for telling a pole from a wall.
-		float sideReach = 120.0f;    // how far past the body's edge the line reaches
+		float sideReach = 60.0f;     // how far past the body's edge the line reaches
 		int   sidePoints = 3;        // samples per side on it
-		int   sideRows = 1;          // how many such lines, spread over the bumper's height as the grid's rows are
+		int   sideRows = 2;          // how many such lines, spread over the bumper's height as the grid's rows are
 		// From a high (or low) angle -- the eye more than highAngle above
 		// or below level -- the body is seen end-on: the samples cover only
 		// the cap that faces the eye, at highScale of the width, and the
 		// side line becomes a cross, level, along and across the eye's
 		// direction.
-		float highAngle = 45.0f;
+		float highAngle = 60.0f;
 		float highScale = 0.6f;
 		int   highPoints = 8;        // points round the high-angle disc's edge
-		int   dropBelowPercent = 75; // dropped when the occluder takes less of the disc than this
-		float partDistance = 80.0f;  // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
+		int   dropBelowPercent = 70; // dropped when the occluder takes less of the disc than this
+		float partDistance = 100.0f; // a hit on the occluder counts only within this distance of the sweep's hit: the same part of it
 
 		// [Prediction]
 		bool  predictionRays = true;
